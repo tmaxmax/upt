@@ -20,14 +20,12 @@ let rec numar_zile_dintre_ani a b =
   else
     let nr_ani = b - a in
     let nr_ani_divizibili_cu m =
-      let mod_val = a mod m in
       (* primul an din interval div. cu m *)
-      let prim = if mod_val = 0 then a else a + (m - mod_val) in
-      (* ceil pt. ca altfel am pierde un an.
+      let prim = if a mod m = 0 then a else a + (m - (a mod m)) in
+      (* adunam 1 daca nr. nu e div. pt. ca altfel am pierde un an.
          De exemplu, in intervalul [2, 9) sunt 7 nr. si 2 div. cu 4
          insa 7 / 4 = 1. *)
-      if prim < b then
-        int_of_float (ceil (float_of_int (b - prim) /. float_of_int m))
+      if prim < b then ((b - prim) / m) + if (b - prim) mod m == 0 then 0 else 1
       else 0
     in
     (* Pentru a calcula anii bisecti, numaram anii divizibili cu 4,

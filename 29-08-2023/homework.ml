@@ -14,10 +14,10 @@ let diferenta_timp a b = abs (timp_in_secunde a - timp_in_secunde b)
 
 let arie_lungime_cerc r = (2. *. Float.pi *. r, Float.pi *. Float.pow r 2.)
 
-let rec numar_zile_dintre_ani a b =
+let numar_zile_dintre_ani a b =
   if a = b then 0
-  else if a > b then numar_zile_dintre_ani b a
   else
+    let a, b = if a > b then (b, a) else (a, b) in
     let nr_ani = b - a in
     let nr_ani_divizibili_cu m =
       (* primul an din interval div. cu m *)

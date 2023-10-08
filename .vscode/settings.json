@@ -1,0 +1,9 @@
+{
+    "ocaml.server.extraEnv": {
+        "OCAMLLSP_SEMANTIC_HIGHLIGHTING": "full"
+    },
+    "ocaml.sandbox": {
+        "kind": "opam",
+        "switch": "default"
+    }
+}

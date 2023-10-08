@@ -1,0 +1,3 @@
+(executable
+ (name chapter9)
+ (libraries str))

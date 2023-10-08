@@ -47,7 +47,7 @@ let[@tail_mod_cons] rec explode = function
   | "" ->
       []
   | s ->
-      s.[0] :: explode (String.sub s 1 (String.length s - 1))
+      s.[0] :: explode String.(sub s 1 (length s - 1))
 
 let rec implode = function
   | [] ->
@@ -158,5 +158,5 @@ let main = function
       exit 1
 ;;
 
-main (Array.to_list (Array.sub Sys.argv 1 (Array.length Sys.argv - 1))) ;
+main (Array.to_list Sys.argv |> List.tl) ;
 print_newline ()

@@ -9,23 +9,20 @@ let norm v =
   let d = Ints.gcd v.num v.denom in
   { num = v.num / d; denom = v.denom / d }
 
-exception Denominator_zero
-
-let make num = function
-  | 0 -> Error Denominator_zero
-  | denom -> Ok (norm { num; denom })
-
+let make num = function 0 -> None | denom -> Some (norm { num; denom })
 let inv x = { num = x.denom; denom = x.num }
 let eval r = float_of_int r.num /. float_of_int r.denom
 
 let div a b =
-  if b = zero then Error Division_by_zero
-  else if b = one then Ok a
-  else Ok (norm { num = a.num * b.denom; denom = a.denom * b.num })
+  if b = zero then None
+  else if b = one then Some a
+  else Some (norm { num = a.num * b.denom; denom = a.denom * b.num })
+
+exception Denominator_zero
 
 module Ops = struct
   let ( /: ) num denom =
-    match make num denom with Ok r -> r | Error e -> raise e
+    match make num denom with Some r -> r | None -> raise Denominator_zero
 
   let ( +/ ) a b =
     norm
@@ -34,5 +31,7 @@ module Ops = struct
   let ( ~/ ) x = { num = -x.num; denom = x.denom }
   let ( -/ ) a b = a +/ ~/b
   let ( */ ) a b = norm { num = a.num * b.num; denom = a.denom * b.denom }
-  let ( // ) a b = match div a b with Ok v -> v | Error e -> raise e
+
+  let ( // ) a b =
+    match div a b with Some v -> v | None -> raise Division_by_zero
 end

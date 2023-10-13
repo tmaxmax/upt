@@ -7,9 +7,9 @@ val one : t
 
 exception Denominator_zero
 
-val make : int -> int -> (t, exn) result
+val make : int -> int -> t option
 val inv : t -> t
-val div : t -> t -> (t, exn) result
+val div : t -> t -> t option
 val eval : t -> float
 
 module Ops : sig

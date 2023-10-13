@@ -1,7 +1,7 @@
 type t
 
 val of_int : int -> t
-val of_float : float -> t
+val of_float : float -> t option
 val zero : t
 val one : t
 

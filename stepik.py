@@ -38,16 +38,41 @@ def factorial_ex(n):
     
     return factorial(n)
 
-from functools import reduce
-from operator import add
+def flatten(iters):
+    for it in iters:
+        for elem in it:
+            yield elem
+
+import re
 
 def write_sum(in_file, out_file):
-    with open(out_file, "w") as fout:
-        try:
-            with open(in_file, "r") as fin:
-                fout.write(str(reduce(add, reduce(list.__add__, map(lambda x: [*map(int, [*x])], fin.read().strip().split(" "))))))
-        except FileNotFoundError:
-            fout.write("0")
+    with open(in_file, "r") as fin, open(out_file, "w") as fout:
+        fout.write(str(sum(map(int, flatten(map(re.Match.group, re.finditer(r"\S+", next(fin))))))))
+        # next fin
+        # |> re.finditer r"\S+"
+        # |> flat_map re.Match.group
+        # |> map int |> sum |> str
+        # |> fout.write
+
+def write_sum_imp(in_file, out_file):
+    with open(in_file, "r") as fin, open(out_file, "w") as fout:
+        s = 0
+        for g in re.finditer(r"\S+", next(fin)):
+            for d in g.group(0):
+                s += int(d)
+        fout.write(str(s))
+
+def write_sum(in_file, out_file):
+    with open(in_file, "r") as fin, open(out_file, "w") as fout:
+        fout.write(str(sum(map(int, flatten(next(fin).split(" "))))))
+
+def write_sum_normal(in_file, out_file):
+    with open(in_file, "r") as fin, open(out_file, "w") as fout:
+        s = 0
+        for n in next(fin).split(" "):
+            for d in n:
+                s += int(d)
+        fout.write(str(s))
 
 l = [8, 11, 12, 12, 12, 14, 15, 12]
 remove_duplicates(l)
@@ -59,4 +84,4 @@ print(check_subsequence(l1, l2))
 
 print(fin_sum(0.5, 15))
 
-write_sum("test.in", "test.out")
+write_sum_normal("test.in", "test.out")

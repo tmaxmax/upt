@@ -2,4 +2,4 @@
  (name vectors)
  (wrapped false)
  (private_modules Ints)
- (libraries num))
+ (libraries zarith))

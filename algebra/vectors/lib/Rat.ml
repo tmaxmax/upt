@@ -8,38 +8,12 @@ let norm v =
   let d = Ints.gcd v.num v.denom in
   { num = v.num / d; denom = v.denom / d }
 
-let decode_float f =
-  let open Int64 in
-  let bits = bits_of_float f in
-  let sign = if shift_right bits 63 = 0L then 1 else -1 in
-  let exp = logand (shift_right bits 52) 0x7ffL in
-  let mant =
-    let masked_bits = logand bits 0xfffffffffffffL in
-    if exp = 0L then shift_left masked_bits 1
-    else logor masked_bits 0x10000000000000L
-  in
-  let exp = sub exp (add 1023L 52L) in
-  (mant, exp, sign)
-
-let of_float f =
-  if not (Float.is_finite f) then None
-  else
-    let m, e, s = decode_float f in
-    if e < 0L then
-      let open Ratio in
-      let open Big_int in
-      let denom = shift_left_big_int (big_int_of_int 1) (-Int64.to_int e) in
-      let num = mult_int_big_int s (big_int_of_int (Int64.to_int m)) in
-      let rat = create_normalized_ratio num denom in
-      Some
-        (norm
-           {
-             num = int_of_big_int (numerator_ratio rat);
-             denom = int_of_big_int (denominator_ratio rat);
-           })
-    else
-      let num = Int64.shift_left m (Int64.to_int e) in
-      Some { num = Int64.to_int num; denom = 1 }
+let of_string s =
+  let q = Q.of_string s in
+  match Q.classify q with
+  | Q.NZERO -> Some { num = Q.num q |> Z.to_int; denom = Q.den q |> Z.to_int }
+  | Q.ZERO -> Some zero
+  | _ -> None
 
 let make num = function 0 -> None | denom -> Some (norm { num; denom })
 let inv x = { num = x.denom; denom = x.num }

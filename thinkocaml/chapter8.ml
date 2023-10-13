@@ -97,7 +97,7 @@ let rec bisect' currf currl =
   match rl with
   | [] ->
       ([], ff, rf)
-  | l ->
+  | _ ->
       let nff, nf, nrf = bisect' rf rl in
       (Option.get ff :: nff, nf, nrf)
 

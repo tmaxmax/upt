@@ -52,6 +52,8 @@ let div a b =
 
 exception Denominator_zero
 
+let print oc r = Printf.fprintf oc "%d/%d" r.num r.denom
+
 module Ops = struct
   let ( /: ) num denom =
     match make num denom with Some r -> r | None -> raise Denominator_zero

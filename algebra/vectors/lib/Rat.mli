@@ -11,6 +11,7 @@ val make : int -> int -> t option
 val inv : t -> t
 val div : t -> t -> t option
 val eval : t -> float
+val print : out_channel -> t -> unit
 
 module Ops : sig
   val ( /: ) : int -> int -> t

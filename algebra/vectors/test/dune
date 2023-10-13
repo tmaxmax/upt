@@ -1,0 +1,6 @@
+(library
+ (name vectors_tests)
+ (inline_tests)
+ (libraries vectors)
+ (preprocess
+  (pps ppx_inline_test)))

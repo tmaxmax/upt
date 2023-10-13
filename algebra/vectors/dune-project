@@ -1,0 +1,22 @@
+(lang dune 3.10)
+
+(name vectors)
+
+(generate_opam_files false)
+
+(source
+ (github tmaxmax/upt))
+
+(authors "Teodor Maxim")
+
+(maintainers "Teodor Maxim")
+
+(license LICENSE)
+
+(package
+ (name vectors)
+ (synopsis "Some stuff related to linear algebra")
+ (description "For school")
+ (depends ocaml dune)
+ (tags
+  ("linear algebra" vectors)))

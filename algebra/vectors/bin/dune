@@ -1,0 +1,4 @@
+(executable
+ (public_name "linear-dependence-check")
+ (name main)
+ (libraries vectors))

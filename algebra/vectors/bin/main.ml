@@ -47,8 +47,9 @@ match read_input () |> parse_input |> Vec.are_linear_dependent with
               (Q.to_string eq_matrix.(i).(j - 1))
         | i, j when j = cols + 1 ->
             print_string
-              (" │ 0 "
-              ^ if i = 0 then "┐" else if i = rows - 1 then "┘" else "│")
+              (if i = 0 then " ╷ 0 ┐"
+               else if i = rows - 1 then " ╵ 0 ┘"
+               else " │ 0 │")
         | _ -> failwith "unreachable"
       done;
       print_newline ()

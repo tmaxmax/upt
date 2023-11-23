@@ -11,7 +11,8 @@ struct BucketEntry {
 };
 
 struct BucketEntry *new_bucket_entry(const void *owned_key, void *value);
-void free_bucket_entry(struct BucketEntry *e, FreeFunction key_free);
+void free_bucket_entry(struct BucketEntry *e, FreeFunction key_free,
+                       FreeFunction value_free);
 
 struct Bucket {
     struct BucketEntry *start;

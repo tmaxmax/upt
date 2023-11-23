@@ -17,9 +17,13 @@ struct BucketEntry *new_bucket_entry(const void *owned_key, void *value) {
     return e;
 }
 
-void free_bucket_entry(struct BucketEntry *e, FreeFunction key_free) {
+void free_bucket_entry(struct BucketEntry *e, FreeFunction key_free,
+                       FreeFunction value_free) {
     if (key_free != NULL) {
         key_free(e->key);
+    }
+    if (value_free != NULL) {
+        value_free(e->value);
     }
     free(e);
 }
@@ -63,7 +67,7 @@ void *bucket_remove(struct Bucket *b, const void *key, Comparator key_cmp,
         }
 
         void *val = e->value;
-        free_bucket_entry(e, key_free);
+        free_bucket_entry(e, key_free, NULL);
 
         return val;
     }

@@ -50,8 +50,9 @@ bool ht_has(HashTable ht, const void *key);
 void ht_for_each(HashTable ht, void *data,
                  bool (*fn)(void *data, const void *key, void *value));
 
-// Deallocates the hash table.
-void ht_free(HashTable ht);
+// Deallocates the hash table. If a FreeFunction is also provided,
+// the values inside the hash table will be deallocated aswell.
+void ht_free(HashTable ht, FreeFunction value_free);
 
 // Returns the number of elements in the hash table.
 size_t ht_size(HashTable ht);

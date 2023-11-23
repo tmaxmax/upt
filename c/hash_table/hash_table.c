@@ -75,7 +75,7 @@ static void ht_resize(struct Impl *ht, size_t new_num_buckets) {
                        noop_key_own, false);
             struct BucketEntry *curr = e;
             e = e->next;
-            free_bucket_entry(curr, NULL);
+            free_bucket_entry(curr, NULL, NULL);
         }
     }
 
@@ -147,13 +147,13 @@ void ht_for_each(HashTable w, void *data,
     }
 }
 
-void ht_free(HashTable w) {
+void ht_free(HashTable w, FreeFunction value_free) {
     struct Impl *ht = w.impl;
     for (size_t i = 0; i < ht->num_buckets; i++) {
         for (struct BucketEntry *e = ht->buckets[i].start; e != NULL;) {
             struct BucketEntry *curr = e;
             e = e->next;
-            free_bucket_entry(curr, ht->key_free);
+            free_bucket_entry(curr, ht->key_free, value_free);
         }
     }
 
@@ -166,7 +166,6 @@ size_t ht_size(HashTable w) { return ((struct Impl *)w.impl)->num_elements; }
 void ht_rehash(HashTable w, size_t num_buckets) {
     struct Impl *ht = w.impl;
 
-    const size_t size = ht->num_elements;
     size_t new_num_buckets =
         (size_t)((double)ht->num_elements / max_load_factor) + 1;
     if (new_num_buckets < num_buckets) {

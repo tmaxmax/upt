@@ -63,7 +63,7 @@ int main(void) {
     ht_for_each(product_prices, stdout, print_total_prices_entry);
     printf("Pret global: %.2f\n", global_total_price);
 
-    ht_free(product_prices);
+    ht_free(product_prices, NULL);
 
     return 0;
 }

@@ -90,25 +90,25 @@ static void ht_resize(struct Impl *ht, size_t new_num_buckets) {
     ht->num_buckets = new_num_buckets;
 }
 
-static void *ht_insert_impl(struct Impl *ht, const void *key, void *value,
-                            bool can_replace) {
+static InsertResult ht_insert_impl(struct Impl *ht, const void *key,
+                                   void *value, bool can_replace) {
     if (ht->auto_resize && ht_load_factor(ht) >= max_load_factor) {
         ht_resize(ht, ht->num_buckets * 2);
     }
 
     const size_t idx = ht->hash(key) % ht->num_buckets;
-    struct AddResult res = bucket_add(&ht->buckets[idx], key, value,
-                                      ht->key_cmp, ht->key_own, can_replace);
+    InsertResult res = bucket_add(&ht->buckets[idx], key, value, ht->key_cmp,
+                                  ht->key_own, can_replace);
     ht->num_elements += res.is_new;
 
-    return res.value;
+    return res;
 }
 
-void *ht_insert(HashTable ht, const void *key, void *value) {
+InsertResult ht_insert(HashTable ht, const void *key, void *value) {
     return ht_insert_impl(ht.impl, key, value, false);
 }
 
-void *ht_upsert(HashTable ht, const void *key, void *value) {
+InsertResult ht_upsert(HashTable ht, const void *key, void *value) {
     return ht_insert_impl(ht.impl, key, value, true);
 }
 

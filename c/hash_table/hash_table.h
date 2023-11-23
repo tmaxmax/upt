@@ -22,13 +22,15 @@ HashTable ht_new(Hasher hash, Comparator key_cmp, KeyOwnFunction key_own,
 
 // Inserts the value into the hash table with the given corresponding key.
 // If the given key already has a value, nothing is done and the old value is
-// returned. Otherwise the new value is returned.
-void *ht_insert(HashTable ht, const void *key, void *value);
+// returned. Otherwise the new value is returned. A flag which indicates
+// whether the key is new or not is also returned.
+InsertResult ht_insert(HashTable ht, const void *key, void *value);
 
 // Inserts the value into the hash table with the corresponding key
 // and replaces the old value with the new value, if the key already had a
-// value. Returns the inserted value.
-void *ht_upsert(HashTable ht, const void *key, void *value);
+// value. Returns the inserted value and a flag which indicates whether
+// the key is new or not.
+InsertResult ht_upsert(HashTable ht, const void *key, void *value);
 
 // Gets the value at the given key or inserts the provided value.
 // Returns the value at the key.

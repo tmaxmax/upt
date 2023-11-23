@@ -76,6 +76,7 @@ void print_total_price(const TotalPrice *price, FILE *out)
 // Pentru rulare:
 // $ gcc -o ex-6 ex-6.c
 // $ ./ex-6 < ex-6.in
+// Fisierul "ex-6.in" este in repository.
 
 int main(void)
 {

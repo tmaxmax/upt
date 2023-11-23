@@ -43,13 +43,13 @@ let transform_to_row_echelon m =
   loop 0 0
 
 let are_linear_dependent l =
-  if not @@ Array.for_all (fun v -> Array.length v = Array.length l.(0)) l then
+  if not Array.(for_all (fun v -> length v = length l.(0)) l) then
     Error (Failure "Vectors must have the same size")
   else
     let rows = Array.length l.(0) in
     let cols = Array.length l in
     let eq_matrix =
-      Array.init rows (fun i -> Array.init cols (fun j -> l.(j).(i)))
+      Array.(init rows (fun i -> init cols (fun j -> l.(j).(i))))
     in
     let num_pivots = transform_to_row_echelon eq_matrix in
     if num_pivots = cols then Ok None else Ok (Some eq_matrix)

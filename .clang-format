@@ -1,0 +1,3 @@
+BasedOnStyle: LLVM
+BraceBreakingStyle: Attach
+IndentWidth: 4

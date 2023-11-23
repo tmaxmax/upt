@@ -45,7 +45,7 @@ bool print_total_prices_entry(void *out, const void *key, void *value) {
 
 int main(void) {
     // Un dictionar cu chei de tip char* (string) si valori float.
-    HashTable *product_prices = ht_new(ht_hasher_chars, strcmp, strdup, free);
+    HashTable product_prices = ht_new(ht_hasher_chars, strcmp, strdup, free);
     float global_total_price = 0.0;
 
     size_t n;

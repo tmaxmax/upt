@@ -24,11 +24,12 @@ void free_bucket_entry(struct BucketEntry *e, FreeFunction key_free) {
     free(e);
 }
 
-void *bucket_add(struct Bucket *b, const void *key, void *value,
-                 Comparator key_cmp, KeyOwnFunction key_own, bool can_replace) {
+struct AddResult bucket_add(struct Bucket *b, const void *key, void *value,
+                            Comparator key_cmp, KeyOwnFunction key_own,
+                            bool can_replace) {
     if (b->start == NULL) {
         b->start = new_bucket_entry(key_own(key), value);
-        return value;
+        return (struct AddResult){.value = value, .is_new = true};
     }
 
     struct BucketEntry *prev = NULL;
@@ -38,13 +39,13 @@ void *bucket_add(struct Bucket *b, const void *key, void *value,
                 e->value = value;
             }
 
-            return e->value;
+            return (struct AddResult){.value = value, .is_new = false};
         }
     }
 
     prev->next = new_bucket_entry(key_own(key), value);
 
-    return value;
+    return (struct AddResult){.value = value, .is_new = true};
 }
 
 void *bucket_remove(struct Bucket *b, const void *key, Comparator key_cmp,

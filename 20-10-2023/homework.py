@@ -58,8 +58,7 @@ def nth(l, n):
 
 def first_n(l, n):
     match (n, l):
-        case (0, _): return []
-        case (_, []): return []
+        case (0, _) | (_, []): return []
         case (n, [v, *rest]): return [v] + first_n(rest, n - 1)
 
 exists = lambda l, e: reduce(lambda acc, v: acc or v == e, l, False)
@@ -84,17 +83,16 @@ def combine(left, right):
         case ([_, *_], []) | ([], [_, *_]):
             raise ValueError("Lists do not have the same length")
 
-def partition(l, pred):
-    match l:
+def partition(e, pred):
+    match e:
         case []: return [], []
-        case [l, *rest]:
+        case [e, *rest]:
             satisfies, not_satisfying = partition(rest, pred)
-            return ([l] + satisfies, not_satisfying) if pred(l) else (satisfies, [l] + not_satisfying)
+            return ([e] + satisfies, not_satisfying) if pred(e) else (satisfies, [e] + not_satisfying)
 
 def remove_consecutive_duplicates(l):
     match l:
-        case []: return []
-        case [l]: return [l]
+        case [] | [_]: return l
         case [a, b, *rest]: return ([a] if a == b else [a, b]) + remove_consecutive_duplicates(rest)
 
 def compare_lists(a, b):
@@ -135,8 +133,7 @@ print(split_in_halves([1, 2, 3, 4, 5, 6, 7, 8, 9]))
 
 def merge_sort(l):
     match l:
-        case []: return []
-        case [v]: return [v]
+        case [] | [_]: return l
         case _:
             left, right = split_in_halves(l)
             return interclasare(merge_sort(left), merge_sort(right))

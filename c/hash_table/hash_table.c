@@ -21,6 +21,7 @@ struct Impl {
     Comparator key_cmp;
     KeyOwnFunction key_own;
     FreeFunction key_free;
+    bool auto_resize;
 };
 
 HashTable ht_new(Hasher hash, Comparator key_cmp, KeyOwnFunction key_own,
@@ -37,6 +38,7 @@ HashTable ht_new(Hasher hash, Comparator key_cmp, KeyOwnFunction key_own,
     ht->num_elements = 0;
     ht->hash = hash;
     ht->key_cmp = key_cmp;
+    ht->auto_resize = true;
 
     if (key_own != NULL) {
         ht->key_own = key_own;
@@ -63,6 +65,10 @@ static double ht_load_factor(struct Impl *ht) {
 }
 
 static void ht_resize(struct Impl *ht, size_t new_num_buckets) {
+    if (new_num_buckets == ht->num_buckets) {
+        return;
+    }
+
     struct Bucket *new_buckets = calloc(new_num_buckets, sizeof(struct Bucket));
     if (new_buckets == NULL) {
         die("out of memory");
@@ -86,7 +92,7 @@ static void ht_resize(struct Impl *ht, size_t new_num_buckets) {
 
 static void *ht_insert_impl(struct Impl *ht, const void *key, void *value,
                             bool can_replace) {
-    if (ht_load_factor(ht) >= max_load_factor) {
+    if (ht->auto_resize && ht_load_factor(ht) >= max_load_factor) {
         ht_resize(ht, ht->num_buckets * 2);
     }
 
@@ -109,7 +115,7 @@ void *ht_upsert(HashTable ht, const void *key, void *value) {
 void *ht_remove(HashTable w, const void *key) {
     struct Impl *ht = w.impl;
 
-    if (ht_load_factor(ht) < min_load_factor) {
+    if (ht->auto_resize && ht_load_factor(ht) < min_load_factor) {
         ht_resize(ht, ht->num_buckets / 2);
     }
 
@@ -137,14 +143,20 @@ bool ht_has(HashTable ht, const void *key) { return ht_get(ht, key) != NULL; }
 void ht_for_each(HashTable w, void *data,
                  bool (*fn)(void *data, const void *key, void *value)) {
     struct Impl *ht = w.impl;
+    ht->auto_resize = false;
+
     for (size_t i = 0; i < ht->num_buckets; i++) {
-        for (struct BucketEntry *e = ht->buckets[i].start; e != NULL;
-             e = e->next) {
-            if (!fn(data, e->key, e->value)) {
+        for (struct BucketEntry *e = ht->buckets[i].start; e != NULL;) {
+            struct BucketEntry *curr = e;
+            e = e->next;
+            if (!fn(data, curr->key, curr->value)) {
                 break;
             }
         }
     }
+
+    ht_rehash(w, 0);
+    ht->auto_resize = true;
 }
 
 void ht_free(HashTable w, FreeFunction value_free) {

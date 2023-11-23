@@ -20,5 +20,7 @@ void ht_for_each(HashTable ht, void *data,
                  bool (*fn)(void *data, const void *key, void *value));
 void ht_free(HashTable ht);
 size_t ht_size(HashTable ht);
+void ht_rehash(HashTable ht, size_t num_buckets);
+void ht_reserve(HashTable ht, size_t required_size);
 
 #endif

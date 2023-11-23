@@ -10,6 +10,9 @@
 void noop_free(const void *x) { (void)x; }
 const void *noop_key_own(const void *key) { return key; }
 
+static const double max_load_factor = 0.8;
+static const double min_load_factor = 0.2; // max_load_factor / 4
+
 struct Impl {
     struct Bucket *buckets;
     size_t num_buckets;
@@ -59,9 +62,7 @@ static double ht_load_factor(struct Impl *ht) {
     return (double)ht->num_elements / (double)ht->num_buckets;
 }
 
-static void ht_resize(struct Impl *ht, bool is_down_resize) {
-    const size_t new_num_buckets =
-        is_down_resize ? (ht->num_buckets / 2) : (ht->num_buckets * 2);
+static void ht_resize(struct Impl *ht, size_t new_num_buckets) {
     struct Bucket *new_buckets = calloc(new_num_buckets, sizeof(struct Bucket));
     if (new_buckets == NULL) {
         die("out of memory");
@@ -85,8 +86,8 @@ static void ht_resize(struct Impl *ht, bool is_down_resize) {
 
 static void *ht_insert_impl(struct Impl *ht, const void *key, void *value,
                             bool can_replace) {
-    if (ht_load_factor(ht) >= 0.8) {
-        ht_resize(ht, false);
+    if (ht_load_factor(ht) >= max_load_factor) {
+        ht_resize(ht, ht->num_buckets * 2);
     }
 
     const size_t idx = ht->hash(key) % ht->num_buckets;
@@ -106,11 +107,11 @@ void *ht_upsert(HashTable ht, const void *key, void *value) {
 }
 
 void *ht_remove(HashTable w, const void *key) {
-    if (ht_load_factor(w.impl) < 0.2) {
-        ht_resize(w.impl, true);
-    }
-
     struct Impl *ht = w.impl;
+
+    if (ht_load_factor(ht) < min_load_factor) {
+        ht_resize(ht, ht->num_buckets / 2);
+    }
 
     const size_t idx = ht->hash(key) % ht->num_buckets;
     void *removed_value =
@@ -161,3 +162,20 @@ void ht_free(HashTable w) {
 }
 
 size_t ht_size(HashTable w) { return ((struct Impl *)w.impl)->num_elements; }
+
+void ht_rehash(HashTable w, size_t num_buckets) {
+    struct Impl *ht = w.impl;
+
+    const size_t size = ht->num_elements;
+    size_t new_num_buckets =
+        (size_t)((double)ht->num_elements / max_load_factor) + 1;
+    if (new_num_buckets < num_buckets) {
+        new_num_buckets = num_buckets;
+    }
+
+    ht_resize(ht, new_num_buckets);
+}
+
+void ht_reserve(HashTable w, size_t required_size) {
+    ht_rehash(w, (size_t)((double)required_size / max_load_factor) + 1);
+}

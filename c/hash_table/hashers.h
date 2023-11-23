@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
-size_t ht_hasher_chars(const void *chars);
+// Hasher for null terminated byte strings.
+size_t ht_hasher_string(const void *chars);
 
 #endif

@@ -4,7 +4,6 @@
 #include <string.h>
 #include <time.h>
 
-#include "hash_table/hash_functions.h"
 #include "hash_table/hash_table.h"
 #include "hash_table/hashers.h"
 #include "hash_table/values.h"

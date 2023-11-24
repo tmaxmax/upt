@@ -1,13 +1,19 @@
-#include <time.h>
+#include <stddef.h>
+#include <stdint.h>
 
-#include "hash_functions.h"
 #include "hashers.h"
 
 size_t ht_hasher_string(const void *chars) {
-    static size_t initial_seed = 0;
-    if (initial_seed == 0) {
-        initial_seed = time(NULL);
+    // Implements
+    // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
+
+    const uint8_t *data = chars;
+    size_t hash = 2166136261;
+
+    for (uint8_t c; (c = *data++);) {
+        hash ^= c;
+        hash *= 16777619;
     }
 
-    return ht_fnv1a(chars, initial_seed);
+    return hash;
 }

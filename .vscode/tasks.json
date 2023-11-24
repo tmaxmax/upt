@@ -1,0 +1,24 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C: clang build active file",
+            "command": "clang",
+            "args": [
+                "@${workspaceRoot}/compile_flags.txt",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}.out",
+                "${file}",
+                "./c/hash_table/*.c"           
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"   
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+    ],
+    "version": "2.0.0"
+}

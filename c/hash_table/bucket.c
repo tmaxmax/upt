@@ -28,9 +28,9 @@ void free_bucket_entry(struct BucketEntry *e, FreeFunction key_free,
     free(e);
 }
 
-InsertResult bucket_add(struct Bucket *b, const void *key, void *value,
-                        Comparator key_cmp, KeyOwnFunction key_own,
-                        bool can_replace) {
+InsertResult bucket_insert(struct Bucket *b, const void *key, void *value,
+                           Comparator key_cmp, KeyOwnFunction key_own,
+                           bool can_replace) {
     if (b->start == NULL) {
         b->start = new_bucket_entry(key_own(key), value);
         return (InsertResult){.value = value, .is_new = true};
@@ -43,7 +43,7 @@ InsertResult bucket_add(struct Bucket *b, const void *key, void *value,
                 e->value = value;
             }
 
-            return (InsertResult){.value = value, .is_new = false};
+            return (InsertResult){.value = e->value, .is_new = false};
         }
     }
 
@@ -75,18 +75,18 @@ void *bucket_remove(struct Bucket *b, const void *key, Comparator key_cmp,
     return NULL;
 }
 
-void *bucket_find_or_insert_value(struct Bucket *b, const void *key,
-                                  void *default_value, Comparator key_cmp,
-                                  KeyOwnFunction key_own) {
+InsertResult bucket_find_or_insert(struct Bucket *b, const void *key,
+                                   void *default_value, Comparator key_cmp,
+                                   KeyOwnFunction key_own) {
     struct BucketEntry *prev = NULL;
     for (struct BucketEntry *e = b->start; e != NULL; prev = e, e = e->next) {
         if (key_cmp(e->key, key) == 0) {
-            return e->value;
+            return (InsertResult){.value = e->value, .is_new = false};
         }
     }
 
     if (default_value == NULL) {
-        return NULL;
+        return (InsertResult){};
     }
 
     if (prev == NULL) {
@@ -95,5 +95,5 @@ void *bucket_find_or_insert_value(struct Bucket *b, const void *key,
         prev->next = new_bucket_entry(key_own(key), default_value);
     }
 
-    return default_value;
+    return (InsertResult){.value = default_value, .is_new = true};
 }

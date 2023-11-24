@@ -23,13 +23,13 @@ typedef struct {
     bool is_new;
 } InsertResult;
 
-InsertResult bucket_add(struct Bucket *b, const void *key, void *value,
-                        Comparator key_cmp, KeyOwnFunction key_own,
-                        bool can_replace);
+InsertResult bucket_insert(struct Bucket *b, const void *key, void *value,
+                           Comparator key_cmp, KeyOwnFunction key_own,
+                           bool can_replace);
 void *bucket_remove(struct Bucket *b, const void *key, Comparator key_cmp,
                     FreeFunction key_free);
-void *bucket_find_or_insert_value(struct Bucket *b, const void *key,
-                                  void *default_value, Comparator key_cmp,
-                                  KeyOwnFunction key_own);
+InsertResult bucket_find_or_insert(struct Bucket *b, const void *key,
+                                   void *default_value, Comparator key_cmp,
+                                   KeyOwnFunction key_own);
 
 #endif

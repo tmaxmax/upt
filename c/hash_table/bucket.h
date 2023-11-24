@@ -3,20 +3,16 @@
 
 #include "common.h"
 
-struct BucketEntry {
+struct Bucket {
     const void *key;
     void *value;
 
-    struct BucketEntry *next;
+    struct Bucket *next;
 };
 
-struct BucketEntry *new_bucket_entry(const void *owned_key, void *value);
-void free_bucket_entry(struct BucketEntry *e, FreeFunction key_free,
-                       FreeFunction value_free);
-
-struct Bucket {
-    struct BucketEntry *start;
-};
+struct Bucket *new_bucket(const void *owned_key, void *value);
+void free_bucket(struct Bucket *b, FreeFunction key_free,
+                 FreeFunction value_free);
 
 typedef struct {
     void *value;

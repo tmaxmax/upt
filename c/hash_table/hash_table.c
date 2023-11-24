@@ -75,17 +75,25 @@ static void ht_resize(struct Impl *ht, size_t new_num_buckets) {
         }
 
         for (size_t i = 0; i < ht->num_buckets; i++) {
-            for (struct BucketEntry *e = ht->buckets[i].start; e != NULL;) {
-                struct BucketEntry *curr = e;
+            struct Bucket *first_bucket = &ht->buckets[i];
+            if (first_bucket->key == NULL) {
+                continue;
+            }
+
+            for (struct Bucket *e = first_bucket; e != NULL;) {
+                struct Bucket *curr = e;
                 e = e->next;
                 curr->next = NULL;
 
                 const size_t new_idx = ht->hash(curr->key) % new_num_buckets;
                 struct Bucket *b = &new_buckets[new_idx];
-                if (b->start == NULL) {
-                    b->start = curr;
+                if (b->key == NULL) {
+                    *b = *curr;
+                    if (curr != first_bucket) {
+                        free_bucket(curr, NULL, NULL);
+                    }
                 } else {
-                    struct BucketEntry *add_after = b->start;
+                    struct Bucket *add_after = b;
                     for (; add_after->next != NULL; add_after = add_after->next)
                         ;
                     add_after->next = curr;
@@ -189,8 +197,13 @@ void ht_for_each(HashTable w, void *data,
     }
 
     for (size_t i = 0; i < ht->num_buckets; i++) {
-        for (struct BucketEntry *e = ht->buckets[i].start; e != NULL;) {
-            struct BucketEntry *curr = e;
+        struct Bucket *e = &ht->buckets[i];
+        if (e->key == NULL) {
+            continue;
+        }
+
+        while (e != NULL) {
+            struct Bucket *curr = e;
             e = e->next;
             if (!fn(data, curr->key, curr->value)) {
                 break;
@@ -202,10 +215,20 @@ void ht_for_each(HashTable w, void *data,
 void ht_free(HashTable w, FreeFunction value_free) {
     struct Impl *ht = w.impl;
     for (size_t i = 0; i < ht->num_buckets; i++) {
-        for (struct BucketEntry *e = ht->buckets[i].start; e != NULL;) {
-            struct BucketEntry *curr = e;
-            e = e->next;
-            free_bucket_entry(curr, ht->key_free, value_free);
+        struct Bucket *b = &ht->buckets[i];
+        if (b->key == NULL) {
+            continue;
+        }
+
+        ht->key_free(b->key);
+        if (value_free != NULL) {
+            value_free(b->value);
+        }
+
+        for (b = b->next; b != NULL;) {
+            struct Bucket *curr = b;
+            b = b->next;
+            free_bucket(curr, ht->key_free, value_free);
         }
     }
 

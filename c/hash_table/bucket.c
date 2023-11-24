@@ -4,70 +4,76 @@
 #include "../die.h"
 #include "bucket.h"
 
-struct BucketEntry *new_bucket_entry(const void *owned_key, void *value) {
-    struct BucketEntry *e = malloc(sizeof(struct BucketEntry));
-    if (e == NULL) {
+struct Bucket *new_bucket(const void *owned_key, void *value) {
+    struct Bucket *b = malloc(sizeof(struct Bucket));
+    if (b == NULL) {
         die("out of memory");
     }
 
-    e->key = owned_key;
-    e->value = value;
-    e->next = NULL;
+    b->key = owned_key;
+    b->value = value;
+    b->next = NULL;
 
-    return e;
+    return b;
 }
 
-void free_bucket_entry(struct BucketEntry *e, FreeFunction key_free,
-                       FreeFunction value_free) {
+void free_bucket(struct Bucket *b, FreeFunction key_free,
+                 FreeFunction value_free) {
     if (key_free != NULL) {
-        key_free(e->key);
+        key_free(b->key);
     }
     if (value_free != NULL) {
-        value_free(e->value);
+        value_free(b->value);
     }
-    free(e);
+    free(b);
+}
+
+static InsertResult bucket_insert_collision(struct Bucket *start,
+                                            const void *key, void *value,
+                                            Comparator key_cmp,
+                                            KeyOwnFunction key_own,
+                                            bool can_replace) {
+    struct Bucket *prev = NULL;
+    for (struct Bucket *b = start; b != NULL; prev = b, b = b->next) {
+        if (key_cmp(b->key, key) == 0) {
+            if (can_replace) {
+                b->value = value;
+            }
+
+            return (InsertResult){.value = b->value, .is_new = false};
+        }
+    }
+
+    prev->next = new_bucket(key_own(key), value);
+
+    return (InsertResult){.value = value, .is_new = true};
 }
 
 InsertResult bucket_insert(struct Bucket *b, const void *key, void *value,
                            Comparator key_cmp, KeyOwnFunction key_own,
                            bool can_replace) {
-    if (b->start == NULL) {
-        b->start = new_bucket_entry(key_own(key), value);
+    if (b->key == NULL) {
+        b->key = key_own(key);
+        b->value = value;
+
         return (InsertResult){.value = value, .is_new = true};
     }
 
-    struct BucketEntry *prev = NULL;
-    for (struct BucketEntry *e = b->start; e != NULL; prev = e, e = e->next) {
-        if (key_cmp(e->key, key) == 0) {
-            if (can_replace) {
-                e->value = value;
-            }
-
-            return (InsertResult){.value = e->value, .is_new = false};
-        }
-    }
-
-    prev->next = new_bucket_entry(key_own(key), value);
-
-    return (InsertResult){.value = value, .is_new = true};
+    return bucket_insert_collision(b, key, value, key_cmp, key_own,
+                                   can_replace);
 }
 
-void *bucket_remove(struct Bucket *b, const void *key, Comparator key_cmp,
-                    FreeFunction key_free) {
-    struct BucketEntry *prev = NULL;
-    for (struct BucketEntry *e = b->start; e != NULL; prev = e, e = e->next) {
-        if (key_cmp(e->key, key) != 0) {
+static void *bucket_remove_walk(struct Bucket *start, const void *key,
+                                Comparator key_cmp, FreeFunction key_free) {
+    struct Bucket *prev = start;
+    for (struct Bucket *b = start->next; b != NULL; prev = b, b = b->next) {
+        if (key_cmp(b->key, key) != 0) {
             continue;
         }
 
-        if (prev == NULL) {
-            b->start = b->start->next;
-        } else {
-            prev->next = e->next;
-        }
-
-        void *val = e->value;
-        free_bucket_entry(e, key_free, NULL);
+        prev->next = b->next;
+        void *val = b->value;
+        free_bucket(b, key_free, NULL);
 
         return val;
     }
@@ -75,13 +81,33 @@ void *bucket_remove(struct Bucket *b, const void *key, Comparator key_cmp,
     return NULL;
 }
 
-InsertResult bucket_find_or_insert(struct Bucket *b, const void *key,
-                                   void *default_value, Comparator key_cmp,
-                                   KeyOwnFunction key_own) {
-    struct BucketEntry *prev = NULL;
-    for (struct BucketEntry *e = b->start; e != NULL; prev = e, e = e->next) {
-        if (key_cmp(e->key, key) == 0) {
-            return (InsertResult){.value = e->value, .is_new = false};
+void *bucket_remove(struct Bucket *b, const void *key, Comparator key_cmp,
+                    FreeFunction key_free) {
+    if (b->key != NULL && key_cmp(b->key, key) == 0) {
+        void *val = b->value;
+        key_free(b->key);
+        if (b->next == NULL) {
+            b->key = NULL;
+            b->value = NULL;
+        } else {
+            *b = *b->next;
+        }
+
+        return val;
+    }
+
+    return bucket_remove_walk(b, key, key_cmp, key_free);
+}
+
+static InsertResult bucket_find_or_insert_walk(struct Bucket *start,
+                                               const void *key,
+                                               void *default_value,
+                                               Comparator key_cmp,
+                                               KeyOwnFunction key_own) {
+    struct Bucket *prev = start;
+    for (struct Bucket *b = prev->next; b != NULL; prev = b, b = b->next) {
+        if (key_cmp(b->key, key) == 0) {
+            return (InsertResult){.value = b->value, .is_new = false};
         }
     }
 
@@ -89,11 +115,21 @@ InsertResult bucket_find_or_insert(struct Bucket *b, const void *key,
         return (InsertResult){};
     }
 
-    if (prev == NULL) {
-        b->start = new_bucket_entry(key_own(key), default_value);
-    } else {
-        prev->next = new_bucket_entry(key_own(key), default_value);
-    }
+    prev->next = new_bucket(key_own(key), default_value);
 
     return (InsertResult){.value = default_value, .is_new = true};
+}
+
+InsertResult bucket_find_or_insert(struct Bucket *b, const void *key,
+                                   void *default_value, Comparator key_cmp,
+                                   KeyOwnFunction key_own) {
+    if (b->key == NULL) {
+        b->key = key_own(key);
+        b->value = default_value;
+        return (InsertResult){.value = default_value, .is_new = true};
+    } else if (key_cmp(key, b->key) == 0) {
+        return (InsertResult){.value = b->value, .is_new = false};
+    }
+
+    return bucket_find_or_insert_walk(b, key, default_value, key_cmp, key_own);
 }

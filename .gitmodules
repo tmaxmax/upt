@@ -1,0 +1,3 @@
+[submodule "c/farmhash"]
+	path = c/farmhash
+	url = https://github.com/uxcn/farmhash-c

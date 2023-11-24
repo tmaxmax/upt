@@ -1,8 +1,13 @@
 #ifndef HASH_TABLE_HASH_TABLE_H
 #define HASH_TABLE_HASH_TABLE_H
 
-#include "bucket.h"
-#include "common.h"
+#include <stdbool.h>
+#include <stddef.h>
+
+typedef size_t (*Hasher)(const void *v);
+typedef int (*Comparator)(const void *a, const void *b);
+typedef const void *(*KeyOwnFunction)(const void *key);
+typedef void (*FreeFunction)(const void *x);
 
 typedef struct {
     void *impl;
@@ -19,6 +24,11 @@ typedef struct {
 // Use ht_rehash or ht_reserve to change that.
 HashTable ht_new(Hasher hash, Comparator key_cmp, KeyOwnFunction key_own,
                  FreeFunction key_free);
+
+typedef struct {
+    void *value;
+    bool is_new;
+} InsertResult;
 
 // Inserts the value into the hash table with the given corresponding key.
 // If the given key already has a value, nothing is done and the old value is

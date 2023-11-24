@@ -117,7 +117,7 @@ static InsertResult bucket_find_or_insert_walk(struct Bucket *start,
     }
 
     if (default_value == NULL) {
-        return (InsertResult){};
+        return (InsertResult){.value = NULL, .is_new = false};
     }
 
     prev->next = new_bucket(key_own(key), default_value);

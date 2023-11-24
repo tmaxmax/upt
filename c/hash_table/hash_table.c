@@ -113,7 +113,7 @@ static void ht_resize(struct Impl *ht, size_t new_num_buckets) {
 static InsertResult ht_insert_impl(struct Impl *ht, const void *key,
                                    void *value, bool can_replace) {
     if (value == NULL) {
-        return (InsertResult){};
+        return (InsertResult){.value = NULL, .is_new = false};
     } else if (ht->num_buckets == 0) {
         ht_resize(ht, initial_num_buckets);
     }

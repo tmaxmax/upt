@@ -12,7 +12,7 @@ const void *noop_key_own(const void *key) { return key; }
 
 static const double max_load_factor = 0.8;
 static const double min_load_factor = 0.2; // max_load_factor / 4
-static const size_t initial_num_buckets = 8;
+static const size_t initial_num_buckets = 2;
 
 struct Impl {
     struct Bucket *buckets;
@@ -97,7 +97,7 @@ static void ht_resize(struct Impl *ht, size_t new_num_buckets) {
                     for (; add_after->next != NULL; add_after = add_after->next)
                         ;
                     if (curr != first_bucket) {
-                    add_after->next = curr;
+                        add_after->next = curr;
                     } else {
                         add_after->next = new_bucket(curr->key, curr->value);
                     }
@@ -128,7 +128,7 @@ static InsertResult ht_insert_impl(struct Impl *ht, const void *key,
     ht->num_elements += res.is_new;
 
     if (ht_load_factor(ht) >= max_load_factor) {
-        ht_resize(ht, ht->num_buckets * 2);
+        ht_resize(ht, ht->num_buckets * 2 + 1);
     }
 
     return res;
@@ -179,7 +179,7 @@ void *ht_get_or_insert(HashTable w, const void *key, void *default_value) {
         ht->num_elements++;
 
         if (ht_load_factor(ht) >= max_load_factor) {
-            ht_resize(ht, ht->num_buckets * 2);
+            ht_resize(ht, ht->num_buckets * 2 + 1);
         }
     }
 

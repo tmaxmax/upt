@@ -49,6 +49,10 @@ bool ht_has(HashTable ht, const void *key);
 // Loops through each entry in the hash table in an indeterminate order.
 // The data parameter can be used to pass additional data to the function,
 // as if it would be a closure.
+//
+// Do not insert or remove entries while iterating – if the hash table
+// is rehashed, the iteration will be broken and invalid memory will be
+// accessed.
 void ht_for_each(HashTable ht, void *data,
                  bool (*fn)(void *data, const void *key, void *value));
 

@@ -96,7 +96,11 @@ static void ht_resize(struct Impl *ht, size_t new_num_buckets) {
                     struct Bucket *add_after = b;
                     for (; add_after->next != NULL; add_after = add_after->next)
                         ;
+                    if (curr != first_bucket) {
                     add_after->next = curr;
+                    } else {
+                        add_after->next = new_bucket(curr->key, curr->value);
+                    }
                 }
             }
         }

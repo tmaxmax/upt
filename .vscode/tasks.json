@@ -9,7 +9,8 @@
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}.out",
                 "${file}",
-                "./c/hash_table/*.c"           
+                "./c/**/*.c",
+                "./c/**/*.o"           
             ],
             "options": {
                 "cwd": "${workspaceFolder}"   

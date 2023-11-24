@@ -55,8 +55,12 @@ InsertResult bucket_insert(struct Bucket *b, const void *key, void *value,
     if (b->key == NULL) {
         b->key = key_own(key);
         b->value = value;
-
         return (InsertResult){.value = value, .is_new = true};
+    } else if (key_cmp(key, b->key) == 0) {
+        if (can_replace) {
+            b->value = value;
+        }
+        return (InsertResult){.value = b->value, .is_new = false};
     }
 
     return bucket_insert_collision(b, key, value, key_cmp, key_own,
@@ -104,6 +108,7 @@ static InsertResult bucket_find_or_insert_walk(struct Bucket *start,
                                                void *default_value,
                                                Comparator key_cmp,
                                                KeyOwnFunction key_own) {
+    printf("collision: %s\n", key);
     struct Bucket *prev = start;
     for (struct Bucket *b = prev->next; b != NULL; prev = b, b = b->next) {
         if (key_cmp(b->key, key) == 0) {

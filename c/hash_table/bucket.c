@@ -129,8 +129,13 @@ InsertResult bucket_find_or_insert(struct Bucket *b, const void *key,
                                    void *default_value, Comparator key_cmp,
                                    KeyOwnFunction key_own) {
     if (b->key == NULL) {
+        if (default_value == NULL) {
+            return (InsertResult){.value = NULL, .is_new = false};
+        }
+
         b->key = key_own(key);
         b->value = default_value;
+
         return (InsertResult){.value = default_value, .is_new = true};
     } else if (key_cmp(key, b->key) == 0) {
         return (InsertResult){.value = b->value, .is_new = false};

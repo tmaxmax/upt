@@ -38,8 +38,8 @@ bool print_total_prices_entry(void *out, const void *key, void *value) {
 }
 
 // Pentru rulare:
-// $ gcc -I../c/ -o ex-6 ../c/hash_table/*.c ex-6-ht.c
-// $ ./ex-6 < ex-6.in
+// $ gcc -I../c/ -o ex-6-h.out ../c/hash_table/*.c ex-6-ht.c
+// $ ./ex-6-h.out < ex-6.in
 // Fisierul "ex-6.in" este in repository.
 
 int main(void) {

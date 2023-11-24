@@ -9,7 +9,6 @@
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}.out",
                 "${file}",
-                "./c/**/*.c",
                 "./c/**/*.o"           
             ],
             "options": {

@@ -37,10 +37,10 @@ bool print_total_prices_entry(void *out, const void *key, void *value) {
     return true;
 }
 
-// Pentru rulare:
-// $ gcc -I../c/ -o ex-6-h.out ../c/*.c ../c/*.o ex-6-ht.c
-// $ ./ex-6-h.out < ex-6.in
-// Fisierul "ex-6.in" este in repository.
+// Pentru rulare (presupunand ca au fost compilate dependentele):
+// $ gcc -I../c/ -o ex-6-h.out ../c/**/*.o ex-6-ht.c
+// $ ./ex-6-ht.out < ex-6-ht.in
+// Fisierul "ex-6-ht.in" este in repository.
 
 int main(void) {
     // Un dictionar cu chei de tip char* (string) si valori float.

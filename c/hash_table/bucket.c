@@ -108,7 +108,6 @@ static InsertResult bucket_find_or_insert_walk(struct Bucket *start,
                                                void *default_value,
                                                Comparator key_cmp,
                                                KeyOwnFunction key_own) {
-    printf("collision: %s\n", key);
     struct Bucket *prev = start;
     for (struct Bucket *b = prev->next; b != NULL; prev = b, b = b->next) {
         if (key_cmp(b->key, key) == 0) {

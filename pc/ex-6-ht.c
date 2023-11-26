@@ -38,7 +38,7 @@ bool print_total_prices_entry(void *out, const void *key, void *value) {
 }
 
 // Pentru rulare (presupunand ca au fost compilate dependentele):
-// $ gcc -I../c/ -o ex-6-h.out ../c/**/*.o ex-6-ht.c
+// $ gcc -I../c/ -L../c/lib -lht -lxxhash -o ex-6-h.out ex-6-ht.c
 // $ ./ex-6-ht.out < ex-6-ht.in
 // Fisierul "ex-6-ht.in" este in repository.
 

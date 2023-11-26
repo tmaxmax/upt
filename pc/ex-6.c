@@ -73,14 +73,13 @@ void print_total_price(const TotalPrice *price, FILE *out) {
 
 int main(void) {
     size_t len_product_prices = 0, cap_product_prices = 2;
-    TotalPrice *product_prices;
+    TotalPrice *product_prices =
+        malloc(sizeof(TotalPrice) * cap_product_prices);
     float global_total_price = 0.0;
 
     size_t n;
     // La fel si aici e important spatiul, vezi explicatia de mai sus.
     scanf("%zu ", &n);
-
-    product_prices = malloc(sizeof(TotalPrice) * cap_product_prices);
 
     for (size_t i = 0; i < n; i++) {
         const Product p = read_product(stdin);

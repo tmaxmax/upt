@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+import random
+from itertools import product
+from string import ascii_letters, digits
+from argparse import ArgumentParser
+from os.path import join
+
+
+def generate_samples(min_size, max_size, count):
+    return [
+        "".join(
+            random.choices(
+                ascii_letters + digits, k=random.choice(range(min_size, max_size + 1))
+            )
+        )
+        for _ in range(count)
+    ]
+
+
+def generate_output(choices, output):
+    output.write(f"{len(choices)}\n")
+    for choice in choices:
+        output.write(
+            f"{choice}\n{random.choice(range(5, 21))}\n{round(random.uniform(0.5, 4), 2)}\n"
+        )
+
+
+sample_sizes = [10, 100, 1000, 10000, 100000]
+choices_counts = [10, 100, 1000, 10000, 100000, 1000000]
+
+
+if __name__ == "__main__":
+    ap = ArgumentParser()
+    ap.add_argument("-d", "--destination-folder", required=True)
+    args = ap.parse_args()
+
+    for sample_size in sample_sizes:
+        samples = generate_samples(10, 250, sample_size)
+
+        for choices_count in choices_counts:
+            choices = random.choices(samples, k=choices_count)
+
+            with open(
+                join(args.destination_folder, f"s{sample_size}-n{choices_count}.in"),
+                "w",
+            ) as output:
+                generate_output(choices, output)

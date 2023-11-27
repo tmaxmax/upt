@@ -26,35 +26,34 @@ rm results/*.out.csv
 for sample_size in "${sample_sizes[@]}"; do
     paths=(`find tests -name "s${sample_size}-*.in" | sort`)
 
-    declare -a results_vec=()
-    declare -a results_ht=()
+    for exec in output/*.out; do
+        exec_name=${exec#output/}
+        exec_name=${exec_name%.out}
+        echo "Testing ${exec_name}..."
 
-    for file in $paths; do
-        echo "Testing $file..."
-        echo -n "- array"
+        declare -a timings=()
+        declare -a mem=()
 
-        ./output/ex-6.out < $file > /dev/null 2> /dev/null
-        for (( i = 1; i <= $num_attempts; i++ )); do
-            output=(`./output/ex-6.out < $file 2>&1 >/dev/null`)
-            results_vec+=(${output[1]})
+        for file in $paths; do
+            file_name=${file#tests/}
+            file_name=${file_name%.in}
+            echo -n "- $file_name"
+
+            $exec < $file >/dev/null 2>/dev/null
+            for (( i = 1; i <= $num_attempts; i++ )); do
+                output=(`$exec < $file 2>&1 >/dev/null`)
+                timings+=(${output[1]})
+                mem+=(${output[2]})
+            done
+
+            echo " [done]"
         done
 
-        echo " [done]"
-        echo -n "- hash table"
+        echo "Writing files..."
 
-        ./output/ex-6-ht.out < $file > /dev/null 2> /dev/null
-        for (( i = 1; i <= $num_attempts; i++ )); do
-            output=(`./output/ex-6-ht.out < $file 2>&1 >/dev/null`)
-            results_ht+=(${output[1]})
-        done
+        print_results "timings" "results/s${sample_size}-${exec_name}.out.csv" ${#paths[@]}
+        print_results "mem" "results/s${sample_size}-${exec_name}.mem.out.csv" ${#paths[@]}
 
-        echo " [done]"
+        echo
     done
-
-    echo "Writing files..."
-
-    print_results "results_vec" "results/s${sample_size}.out.csv" ${#paths[@]}
-    print_results "results_ht" "results/s${sample_size}-ht.out.csv" ${#paths[@]}
-
-    echo
 done

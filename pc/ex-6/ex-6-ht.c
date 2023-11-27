@@ -14,7 +14,7 @@ typedef struct {
     float unit_price;
 } Product;
 
-Product read_product(FILE *in) {
+static Product read_product(FILE *in) {
     Product p;
 
     fgets(p.name, sizeof p.name, in);
@@ -30,7 +30,7 @@ Product read_product(FILE *in) {
     return p;
 }
 
-bool print_total_prices_entry(void *out, const void *key, void *value) {
+static bool print_total_prices_entry(void *out, const void *key, void *value) {
     fprintf(out, "Pretul pentru %s: %.2f\n", (const char *)key,
             ht_v_float(value));
 
@@ -38,7 +38,7 @@ bool print_total_prices_entry(void *out, const void *key, void *value) {
 }
 
 // Pentru rulare (presupunand ca au fost compilate dependentele):
-// $ gcc -I../c/ -L../c/lib -lht -lxxhash -o ex-6-h.out ex-6-ht.c
+// $ gcc -I../../c/ -L../../c/lib -lht -lxxhash -o ex-6-h.out ex-6-ht.c
 // $ ./ex-6-ht.out < ex-6-ht.in
 // Fisierul "ex-6-ht.in" este in repository.
 

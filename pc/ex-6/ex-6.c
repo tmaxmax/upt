@@ -8,7 +8,7 @@ typedef struct {
     float unit_price;
 } Product;
 
-Product read_product(FILE *in) {
+static Product read_product(FILE *in) {
     Product p;
 
     fgets(p.name, sizeof p.name, in);
@@ -34,7 +34,8 @@ typedef struct {
     float value;
 } TotalPrice;
 
-TotalPrice new_total_price(const char *const name, const float inital_value) {
+static TotalPrice new_total_price(const char *const name,
+                                  const float inital_value) {
     TotalPrice p;
 
     // https://en.cppreference.com/w/cpp/string/byte/strncpy
@@ -46,8 +47,9 @@ TotalPrice new_total_price(const char *const name, const float inital_value) {
     return p;
 }
 
-TotalPrice *find_by_product_name(TotalPrice *prices, const size_t len_prices,
-                                 const char *const name) {
+static TotalPrice *find_by_product_name(TotalPrice *prices,
+                                        const size_t len_prices,
+                                        const char *const name) {
     for (size_t i = 0; i < len_prices; i++) {
         if (strcmp(prices[i].product_name, name) == 0) {
             return &prices[i];
@@ -57,7 +59,7 @@ TotalPrice *find_by_product_name(TotalPrice *prices, const size_t len_prices,
     return NULL;
 }
 
-void print_total_price(const TotalPrice *price, FILE *out) {
+static void print_total_price(const TotalPrice *price, FILE *out) {
     // Parametrul price este un pointer si nu o valoare pentru a nu copia
     // toata valoarea (260 de bytes) pe stiva. "const" ii spune compilatorului
     // sa nu ne permita sa modificam valoarea – altfel, dat fiind ca e pointer,

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import random
-from itertools import product
+import os
+from glob import glob
 from string import ascii_letters, digits
 from argparse import ArgumentParser
 from os.path import join
@@ -26,14 +27,24 @@ def generate_output(choices, output):
         )
 
 
-sample_sizes = [10, 100, 1000, 10000, 100000]
-choices_counts = [10, 100, 1000, 10000, 100000, 1000000]
+def pad_zero(num, count):
+    return str(num).zfill(count)
 
 
 if __name__ == "__main__":
     ap = ArgumentParser()
     ap.add_argument("-d", "--destination-folder", required=True)
+    ap.add_argument("-s", "--sample-sizes", required=True, nargs="+")
+    ap.add_argument("-c", "--choices-counts", required=True, nargs="+")
     args = ap.parse_args()
+
+    sample_sizes = [int(s) for s in args.sample_sizes]
+    digits_max_sample = len(str(max(sample_sizes)))
+    choices_counts = [int(c) for c in args.choices_counts]
+    digits_max_choice = len(str(max(choices_counts)))
+
+    for f in glob(f"{args.destination_folder}/*.in"):
+        os.remove(f)
 
     for sample_size in sample_sizes:
         samples = generate_samples(10, 250, sample_size)
@@ -42,7 +53,10 @@ if __name__ == "__main__":
             choices = random.choices(samples, k=choices_count)
 
             with open(
-                join(args.destination_folder, f"s{sample_size}-n{choices_count}.in"),
+                join(
+                    args.destination_folder,
+                    f"s{pad_zero(sample_size, digits_max_sample)}-n{pad_zero(choices_count, digits_max_choice)}.in",
+                ),
                 "w",
             ) as output:
                 generate_output(choices, output)

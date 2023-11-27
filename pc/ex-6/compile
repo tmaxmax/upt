@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+
+for file in ./ex-*.c; do
+    obj_file="output/${file%c}o"
+    sed -e "s/int main/int run/" < $file | clang -c -xc -std=c11 -O3 -ffast-math -ffinite-math-only -ffinite-loops -flto -I../../c/ -o "$obj_file" -
+    clang -std=c11 -O3 -L../../c/lib -lht -lxxhash -flto -o "${obj_file}ut" "$obj_file" runner.c
+done

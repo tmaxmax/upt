@@ -19,12 +19,12 @@ function print_results () {
     done
 }
 
-sample_sizes=(`find ex-6-tests -name "*.in" | sed -e "s/^ex-6-tests\\/s//" -e "s/-n.*$//" | sort -u`)
+sample_sizes=(`find tests -name "*.in" | sed -e "s/^tests\\/s//" -e "s/-n.*$//" | sort -u`)
 
-rm ex-6-results/*.out.csv
+rm results/*.out.csv
 
 for sample_size in "${sample_sizes[@]}"; do
-    paths=(`find ex-6-tests -name "s${sample_size}-*.in" | sort`)
+    paths=(`find tests -name "s${sample_size}-*.in" | sort`)
 
     declare -a results_vec=()
     declare -a results_ht=()
@@ -33,23 +33,19 @@ for sample_size in "${sample_sizes[@]}"; do
         echo "Testing $file..."
         echo -n "- array"
 
-        ./ex-6.out < $file > /dev/null
+        ./output/ex-6.out < $file > /dev/null 2> /dev/null
         for (( i = 1; i <= $num_attempts; i++ )); do
-            typeset -F SECONDS=0
-            ./ex-6.out < $file > /dev/null
-
-            results_vec+=("${SECONDS%0000}")
+            output=(`./output/ex-6.out < $file 2>&1 >/dev/null`)
+            results_vec+=(${output[1]})
         done
 
         echo " [done]"
         echo -n "- hash table"
 
-        ./ex-6-ht.out < $file > /dev/null
+        ./output/ex-6-ht.out < $file > /dev/null 2> /dev/null
         for (( i = 1; i <= $num_attempts; i++ )); do
-            typeset -F SECONDS=0
-            ./ex-6-ht.out < $file > /dev/null
-
-            results_ht+=("${SECONDS%0000}")
+            output=(`./output/ex-6-ht.out < $file 2>&1 >/dev/null`)
+            results_ht+=(${output[1]})
         done
 
         echo " [done]"
@@ -57,8 +53,8 @@ for sample_size in "${sample_sizes[@]}"; do
 
     echo "Writing files..."
 
-    print_results "results_vec" "ex-6-results/s${sample_size}.out.csv" ${#paths[@]}
-    print_results "results_ht" "ex-6-results/s${sample_size}-ht.out.csv" ${#paths[@]}
+    print_results "results_vec" "results/s${sample_size}.out.csv" ${#paths[@]}
+    print_results "results_ht" "results/s${sample_size}-ht.out.csv" ${#paths[@]}
 
     echo
 done

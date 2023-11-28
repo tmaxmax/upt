@@ -338,7 +338,7 @@ void ht_for_each(HashTable w, void *data,
             struct Bucket *curr = e;
             e = e->next;
             if (!fn(data, curr->key, curr->value)) {
-                break;
+                return;
             }
         }
     }

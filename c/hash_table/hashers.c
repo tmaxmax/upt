@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "hashers.h"
+#include "values.h"
 #include "xxhash/xxhash.h"
 
 static int read_random_number(uint64_t *dst) {
@@ -45,3 +46,7 @@ size_t ht_hasher_string(const void *chars) {
 
     return XXH64(chars, len, seed);
 }
+
+size_t ht_hasher_u8(const void *num) { return ht_v_u8(num); }
+
+size_t ht_hasher_boolean(const void *b) { return ht_v_boolean(b); }

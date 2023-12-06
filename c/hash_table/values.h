@@ -1,12 +1,19 @@
 #ifndef HASH_TABLE_VALUES_H
 #define HASH_TABLE_VALUES_H
 
-// Interprets the void* returned by any of the hash table's methods
-// as a float. NULL values are interpreted as 0.0.
-float ht_v_float(void *from_ht);
+#include <stdbool.h>
+#include <stdint.h>
 
-// Bitwise cast from the given float to a void*, which should
-// be used as a hash table value (for insertion etc.).
-void *ht_v_from_float(float f);
+#define HT_INTERNAL_GEN_VALUE_HEADER(type, name)                               \
+    type ht_v_##name(const void *from_ht);                                     \
+    void *ht_v_from_##name(type t);
+
+#define HT_INTERNAL_GEN_KEY_HEADER(type, name)                                 \
+    HT_INTERNAL_GEN_VALUE_HEADER(type, name)                                   \
+    int ht_cmp_##name(const void *a, const void *b);
+
+HT_INTERNAL_GEN_VALUE_HEADER(float, float)
+HT_INTERNAL_GEN_KEY_HEADER(bool, boolean)
+HT_INTERNAL_GEN_KEY_HEADER(uint8_t, u8)
 
 #endif

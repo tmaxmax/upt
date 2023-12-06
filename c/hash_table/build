@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+clang -c -I.. -fPIC -std=c11 -O3 *.c
+ar r ../lib/libht.a *.o
+rm *.o

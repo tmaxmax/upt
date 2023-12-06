@@ -9,6 +9,9 @@ typedef int (*Comparator)(const void *a, const void *b);
 typedef const void *(*KeyOwnFunction)(const void *key);
 typedef void (*FreeFunction)(const void *x);
 
+const void *noop_key_own(const void *key);
+void noop_free(const void *x);
+
 typedef struct {
     void *impl;
 } HashTable;

@@ -346,6 +346,10 @@ void ht_for_each(HashTable w, void *data,
 
 void ht_free(HashTable w, FreeFunction value_free) {
     struct Impl *ht = w.impl;
+    if (w.impl == NULL) {
+        return;
+    }
+
     for (size_t i = 0; i < ht->num_buckets; i++) {
         struct Bucket *b = &ht->buckets[i];
         if (b->key == NULL) {

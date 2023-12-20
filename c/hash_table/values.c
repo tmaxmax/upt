@@ -19,6 +19,7 @@
 HT_GEN_VALUE(float, float)
 HT_GEN_VALUE(bool, boolean)
 HT_GEN_VALUE(uint8_t, u8)
+HT_GEN_VALUE(int, int)
 
 int ht_cmp_bool(const void *a, const void *b) {
     return (int)ht_v_boolean(a) - (int)ht_v_boolean(b);
@@ -26,4 +27,8 @@ int ht_cmp_bool(const void *a, const void *b) {
 
 int ht_cmp_u8(const void *a, const void *b) {
     return (int)ht_v_u8(a) - (int)ht_v_u8(b);
+}
+
+int ht_cmp_int(const void *a, const void *b) {
+    return ht_v_int(a) - ht_v_int(b);
 }

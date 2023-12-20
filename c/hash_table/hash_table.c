@@ -314,13 +314,15 @@ void *ht_get_or_insert(HashTable w, const void *key, void *default_value) {
     return res.value;
 }
 
-void *ht_get(HashTable w, const void *key) {
+void *ht_get(const HashTable w, const void *key) {
     return ht_get_or_insert(w, key, NULL);
 }
 
-bool ht_has(HashTable ht, const void *key) { return ht_get(ht, key) != NULL; }
+bool ht_has(const HashTable ht, const void *key) {
+    return ht_get(ht, key) != NULL;
+}
 
-void ht_for_each(HashTable w, void *data,
+void ht_for_each(const HashTable w, void *data,
                  bool (*fn)(void *data, const void *key, void *value)) {
     struct Impl *ht = w.impl;
 
@@ -373,7 +375,9 @@ void ht_free(HashTable w, FreeFunction value_free) {
     w.impl = NULL;
 }
 
-size_t ht_size(HashTable w) { return ((struct Impl *)w.impl)->num_elements; }
+size_t ht_size(const HashTable w) {
+    return ((struct Impl *)w.impl)->num_elements;
+}
 
 void ht_rehash(HashTable w, size_t num_buckets) {
     struct Impl *ht = w.impl;

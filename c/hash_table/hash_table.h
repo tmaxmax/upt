@@ -50,14 +50,14 @@ InsertResult ht_upsert(HashTable ht, const void *key, void *value);
 void *ht_get_or_insert(HashTable ht, const void *key, void *default_value);
 
 // Gets the value at the given key. Returns NULL if there is no value.
-void *ht_get(HashTable ht, const void *key);
+void *ht_get(const HashTable ht, const void *key);
 
 // Removes the value at the given key and returns it.
 // Returns NULL if no value was removed.
 void *ht_remove(HashTable ht, const void *key);
 
 // Checks if a key has a corresponding value.
-bool ht_has(HashTable ht, const void *key);
+bool ht_has(const HashTable ht, const void *key);
 
 // Loops through each entry in the hash table in an indeterminate order.
 // The data parameter can be used to pass additional data to the function,
@@ -66,7 +66,7 @@ bool ht_has(HashTable ht, const void *key);
 // Do not insert or remove entries while iterating – if the hash table
 // is rehashed, the iteration will be broken and invalid memory will be
 // accessed.
-void ht_for_each(HashTable ht, void *data,
+void ht_for_each(const HashTable ht, void *data,
                  bool (*fn)(void *data, const void *key, void *value));
 
 // Deallocates the hash table. If a FreeFunction is also provided,
@@ -74,7 +74,7 @@ void ht_for_each(HashTable ht, void *data,
 void ht_free(HashTable ht, FreeFunction value_free);
 
 // Returns the number of elements in the hash table.
-size_t ht_size(HashTable ht);
+size_t ht_size(const HashTable ht);
 
 // Reserves at least the specified number of buckets and regenerates the hash
 // table.

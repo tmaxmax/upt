@@ -115,7 +115,7 @@ typedef struct {
     size_t len, cap;
 } CarDatabase;
 
-CarDatabase db_new() { return (CarDatabase){NULL, 0, 0}; }
+CarDatabase db_new(void) { return (CarDatabase){NULL, 0, 0}; }
 
 void db_add(CarDatabase *db, Car car) {
     if (db->len == db->cap) {

@@ -42,6 +42,7 @@ extern int read_to_eof_of(void *dst, const size_t sizeof_elem, size_t *count,
 extern int read_n_of(void *dst, const size_t sizeof_elem, const size_t n,
                      FILE *src, int (*read_fn)(void *elem, FILE *src));
 extern int read_scanf_ret(int ret, int expected);
+extern char *read_line(FILE *in);
 
 #ifdef PC_READ_IMPLEMENTATION
 int read_to_eof_of(void *dst, const size_t sizeof_elem, size_t *count,
@@ -67,6 +68,39 @@ int read_scanf_ret(int ret, int expected) {
         return EOF;
     }
     return 0;
+}
+
+#ifndef PC_READ_LINE_BUFSIZE
+#define PC_READ_LINE_BUFSIZE 256
+#endif // PC_READ_LINE_BUFSIZE
+
+char *read_line(FILE *in) {
+    size_t len = 0, cap = PC_READ_LINE_BUFSIZE;
+    char *line = NULL;
+
+    char *last_read_start;
+
+    char buf[256];
+
+    while (fgets(buf, sizeof buf, in) != NULL) {
+        if (len + sizeof buf > cap) {
+            cap = cap == 0 ? sizeof buf : (cap / 2 * 3);
+            line = realloc(line, cap);
+        }
+
+        last_read_start = line + len;
+        memcpy(line + len, buf, sizeof buf - 1);
+        len += sizeof buf - 1;
+    }
+
+    if (line == NULL) {
+        return NULL;
+    }
+
+    const size_t last_read_len = strcspn(last_read_start, "\r\n");
+    last_read_start[last_read_len] = '\0';
+
+    return line;
 }
 #endif // PC_READ_IMPLEMENTATION
 

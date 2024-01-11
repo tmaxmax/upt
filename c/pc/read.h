@@ -75,12 +75,12 @@ int read_scanf_ret(int ret, int expected) {
 #endif // PC_READ_LINE_BUFSIZE
 
 char *read_line(FILE *in) {
-    size_t len = 0, cap = PC_READ_LINE_BUFSIZE;
+    size_t len = 0, cap = 0;
     char *line = NULL;
 
     char *last_read_start;
 
-    char buf[256];
+    char buf[PC_READ_LINE_BUFSIZE];
 
     while (fgets(buf, sizeof buf, in) != NULL) {
         if (len + sizeof buf > cap) {

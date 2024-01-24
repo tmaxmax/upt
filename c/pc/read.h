@@ -35,6 +35,7 @@
 
 PC_INTERNAL_READ_NUM_VEC(uint8_t, u8, SCNu8)
 PC_INTERNAL_READ_NUM_VEC(uint64_t, u64, SCNu64)
+PC_INTERNAL_READ_NUM_VEC(int, int, "d")
 
 extern int read_to_eof_of(void *dst, const size_t sizeof_elem, size_t *count,
                           const size_t max_count, FILE *src,

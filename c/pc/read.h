@@ -75,6 +75,8 @@ int read_scanf_ret(int ret, int expected) {
 #define PC_READ_LINE_BUFSIZE 256
 #endif // PC_READ_LINE_BUFSIZE
 
+#include <string.h>
+
 char *read_line(FILE *in) {
     size_t len = 0, cap = 0;
     char *line = NULL;

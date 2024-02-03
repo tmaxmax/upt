@@ -87,7 +87,8 @@ const char *operation_to_string(enum Operation op) {
 
 int main(int argc, char **argv) {
     if (!isatty(STDIN_FILENO)) {
-        fprintf(stderr, "application should be opened in a terminal\n");
+        fprintf(stderr, "%s: application should be opened in a terminal\n",
+                argv[0]);
         return 1;
     }
 
@@ -99,15 +100,25 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf("How much is it? You have %d seconds!\n\n", timeout_ms);
+    printf("How much is it? You have %d seconds!\nPress ENTER to start . . . ",
+           timeout_ms);
+    fflush(stdout);
+
+    char *input = NULL;
+    size_t input_cap = 0;
+
+    // Wait for the user to press enter and discard the input
+    if (!try_read_line(-1, &input, &input_cap)) {
+        fprintf(stderr, "%s: something went wrong\n", argv[0]);
+        return 1;
+    };
+
+    printf("\n");
 
     srand(time(NULL));
 
     int min = 1, max = 100;
     int num_attempts = 0;
-
-    char *input = NULL;
-    size_t input_cap = 0;
 
     while (true) {
         const enum Operation op = rand_num_in_range(OP_ADD, OP_SUB);
@@ -125,7 +136,8 @@ int main(int argc, char **argv) {
 
         const int parsed = strtol(input, NULL, 10);
         if (errno != 0) {
-            perror("invalid input");
+            fprintf(stderr, "%s: invalid input (%s)\n", argv[0],
+                    strerror(errno));
             free(input);
             return 1;
         }
@@ -137,10 +149,12 @@ int main(int argc, char **argv) {
 
         printf("Correct!\n");
         num_attempts++;
-        max = max / 4 * 5;
+
+        min = min == 1 ? min + 1 : min / 3 * 4;
+        max = max / 3 * 4;
     }
 
-    printf("You answered %d questions. Good job!\n", num_attempts);
+    printf("\nYou answered %d questions. Good job!\n", num_attempts);
 
     free(input);
 

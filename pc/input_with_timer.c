@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <poll.h>
 #include <pthread.h>
 #include <stdbool.h>
@@ -108,10 +109,16 @@ void *timer_display_thread(void *arg) {
     return NULL;
 }
 
-void timer_display_start(struct TimerDisplay *d) {
+int timer_display_start(struct TimerDisplay *d) {
     pthread_t tid;
-    pthread_create(&tid, NULL, timer_display_thread, d);
-    pthread_detach(tid);
+    int ret;
+    if ((ret = pthread_create(&tid, NULL, timer_display_thread, d)) != 0) {
+        return ret;
+    };
+
+    assert(pthread_detach(tid) == 0);
+
+    return 0;
 }
 
 ssize_t get_input_with_timer(int num_seconds, char *out, size_t out_max_size) {
@@ -119,7 +126,10 @@ ssize_t get_input_with_timer(int num_seconds, char *out, size_t out_max_size) {
     if (!timer_display_init(&d, num_seconds)) {
         return -3;
     }
-    timer_display_start(&d);
+    if (timer_display_start(&d) != 0) {
+        timer_display_destroy(&d);
+        return -3;
+    };
 
     ssize_t ret = try_read_line(num_seconds * 1000, out, out_max_size);
     timer_display_stop(&d);

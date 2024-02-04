@@ -102,15 +102,20 @@ static int parse_bets(const char *s, Bet *out, const size_t out_max_size) {
     return -1; // either a parse error occured or too many bets were placed
 }
 
-static void ticker_display(void *data, const int second) {
-    int num_seconds = *(int *)data;
-    if (second == 1) {
+static int64_t ticker_display(void *data, int64_t start, int64_t now) {
+    static const int64_t ns_in_second = 1000000000;
+
+    const int num_seconds = *(int *)data;
+    const int elapsed_seconds = (now - start) / ns_in_second;
+    if (elapsed_seconds == 0) {
         printf("  :  \x1b[s");
     }
 
-    printf("\r%2d : \x1b[u", num_seconds - second + 1);
+    printf("\r%2d : \x1b[u", num_seconds - elapsed_seconds);
     fflush(stdout);
     printf("\x1b[s");
+
+    return ns_in_second;
 }
 
 // Returns:

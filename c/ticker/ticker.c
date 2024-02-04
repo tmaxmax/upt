@@ -42,20 +42,44 @@ struct ThreadData {
     void *callback_data;
 };
 
+static int64_t timespec_to_ns(const struct timespec *ts) {
+    return ts->tv_sec * 1000000000 + ts->tv_nsec;
+}
+
+static void add_ns_to_timespec(struct timespec *out, const struct timespec *ts,
+                               int64_t ns) {
+    out->tv_sec = ts->tv_sec + ns / 1000000000;
+    out->tv_nsec = ts->tv_nsec + ns % 1000000000;
+    if (out->tv_nsec >= 1000000000) {
+        out->tv_sec++;
+        out->tv_nsec -= 1000000000;
+    }
+}
+
 static void *thread(void *arg) {
     struct ThreadData *d = arg;
-    struct timespec wait_until;
-    bool done = false;
+    struct timespec start, now, wait_until;
 
     pthread_mutex_lock(&d->ticker->mu);
     d->ticker->done = false;
     pthread_mutex_unlock(&d->ticker->mu);
 
-    for (int i = 1; !done; i++) {
-        d->callback(d->callback_data, i);
+    for (bool done = false; !done;) {
+        timespec_get(&now, TIME_UTC);
+        if (start.tv_sec == 0) {
+            start = now;
+        }
 
-        timespec_get(&wait_until, TIME_UTC);
-        wait_until.tv_sec += 1;
+        int64_t next_interval = d->callback(
+            d->callback_data, timespec_to_ns(&start), timespec_to_ns(&now));
+        if (next_interval <= 0) {
+            pthread_mutex_lock(&d->ticker->mu);
+            d->ticker->done = true;
+            pthread_mutex_unlock(&d->ticker->mu);
+            break;
+        }
+
+        add_ns_to_timespec(&wait_until, &now, next_interval);
 
         pthread_mutex_lock(&d->ticker->mu);
         for (int ret = 0; !d->ticker->done && ret == 0;) {

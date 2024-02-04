@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <poll.h>
 #include <pthread.h>
 #include <stdbool.h>
@@ -116,7 +115,7 @@ int timer_display_start(struct TimerDisplay *d) {
         return ret;
     };
 
-    assert(pthread_detach(tid) == 0);
+    pthread_detach(tid);
 
     return 0;
 }

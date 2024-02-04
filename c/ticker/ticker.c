@@ -4,14 +4,14 @@
 
 #include "ticker.h"
 
-struct Ticker {
+struct _Ticker {
     pthread_mutex_t mu;
     pthread_cond_t cv;
     bool done;
 };
 
-struct Ticker *ticker_new(void) {
-    struct Ticker *t = malloc(sizeof *t);
+Ticker *ticker_new(void) {
+    Ticker *t = malloc(sizeof *t);
     if (t == NULL) {
         return NULL;
     }
@@ -30,14 +30,14 @@ struct Ticker *ticker_new(void) {
     return t;
 }
 
-void ticker_free(struct Ticker *d) {
+void ticker_free(Ticker *d) {
     pthread_mutex_destroy(&d->mu);
     pthread_cond_destroy(&d->cv);
     free(d);
 }
 
 struct ThreadData {
-    struct Ticker *ticker;
+    Ticker *ticker;
     TickerCallback callback;
     void *callback_data;
 };
@@ -95,8 +95,7 @@ static void *thread(void *arg) {
     return NULL;
 }
 
-int ticker_start(struct Ticker *t, TickerCallback callback,
-                 void *callback_data) {
+int ticker_start(Ticker *t, TickerCallback callback, void *callback_data) {
     // Must malloc because the thread outlives the caller's stack frame.
     struct ThreadData *data = malloc(sizeof *data);
     data->ticker = t;
@@ -112,7 +111,7 @@ int ticker_start(struct Ticker *t, TickerCallback callback,
     return pthread_detach(tid);
 }
 
-void ticker_stop(struct Ticker *t) {
+void ticker_stop(Ticker *t) {
     pthread_mutex_lock(&t->mu);
     if (!t->done) {
         t->done = true;

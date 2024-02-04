@@ -123,7 +123,7 @@ static int64_t ticker_display(void *data, int64_t start, int64_t now) {
 // - 0: timeout or no input
 // - -1: input error
 // - -2: unrecoverable error (e.g. EOF)
-static int read_bets(struct Ticker *t, Bet *out, const size_t out_max_size) {
+static int read_bets(Ticker *t, Bet *out, const size_t out_max_size) {
     static int num_seconds = 10;
 
     if (ticker_start(t, ticker_display, &num_seconds) != 0) {
@@ -246,7 +246,7 @@ int main(int argc, char **argv) {
     }
 
     srand(time(NULL));
-    struct Ticker *t = ticker_new();
+    Ticker *t = ticker_new();
     Bet bets[128];
 
     int balance = 100;

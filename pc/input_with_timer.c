@@ -84,10 +84,11 @@ void timer_display_stop(struct TimerDisplay *d) {
 void *timer_display_thread(void *arg) {
     struct TimerDisplay *d = arg;
     struct timespec wait_until;
+    bool done = false;
 
     printf("  :  \x1b[s");
 
-    for (int i = d->num_seconds; i > 0; i--) {
+    for (int i = d->num_seconds; i > 0 && !done; i--) {
         printf("\r%d : \x1b[u", i);
         fflush(stdout);
         printf("\x1b[s");
@@ -99,9 +100,7 @@ void *timer_display_thread(void *arg) {
         for (int ret = 0; !d->done && ret == 0;) {
             ret = pthread_cond_timedwait(&d->cv, &d->mu, &wait_until);
         }
-        if (d->done) {
-            break;
-        }
+        done = d->done;
         pthread_mutex_unlock(&d->mu);
     }
 

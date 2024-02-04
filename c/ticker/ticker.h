@@ -21,6 +21,7 @@ int ticker_start(struct Ticker *timer, TickerCallback callback,
 
 // Stops the ticker. It can be reused afterwards by calling ticker_start.
 void ticker_stop(struct Ticker *timer);
+
 void ticker_free(struct Ticker *timer);
 
 #endif

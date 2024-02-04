@@ -138,8 +138,7 @@ ssize_t get_input_with_timer(int num_seconds, char *out, size_t out_max_size) {
 
 int main(void) {
     char input[256];
-    ssize_t ret = get_input_with_timer(5, input, sizeof input);
-    switch (ret) {
+    switch (get_input_with_timer(5, input, sizeof input)) {
     case 0:
         puts("EOF");
         break;

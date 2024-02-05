@@ -48,9 +48,13 @@ typedef struct {
 } Bet;
 
 const char *bet_parse(const char *s, Bet *out) {
+    // things may have failed before. if errno != 0 parsing number bets fails.
+    errno = 0;
+
     const char *next;
     const long maybe_number = strtol(s, (char **)&next, 10);
-    if (errno == 0 && maybe_number >= 0 && maybe_number <= 36) {
+    if ((maybe_number == 0 && errno == 0) ||
+        (maybe_number > 0 && maybe_number <= 36)) {
         out->kind = BetKindNumber;
         out->number = (uint8_t)maybe_number;
     } else if ((next = parity_parse(s, &out->parity)) != NULL) {
@@ -66,7 +70,7 @@ const char *bet_parse(const char *s, Bet *out) {
     }
 
     const long maybe_money = strtol(next, (char **)&next, 10);
-    if (maybe_money <= 0) {
+    if (maybe_money < 0 || (maybe_money == 0 && errno != 0)) {
         return NULL;
     }
 

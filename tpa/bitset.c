@@ -23,10 +23,14 @@ int main(void) {
     Bitset b = bitset_new();
 
     for (uint32_t num; scanf("%" SCNu32 " ", &num) != EOF;) {
+        if (num > MAX_INPUT_NUM || num < 0) {
+            fprintf(stderr, "input number %" PRIu32 " is out of range\n", num);
+            return 1;
+        }
         bitset_set(&b, num);
     }
 
-    for (uint32_t num = 0; num <= 1000; num++) {
+    for (uint32_t num = 0; num <= MAX_INPUT_NUM; num++) {
         if (bitset_test(&b, num)) {
             printf("%" PRIu32 " ", num);
         }

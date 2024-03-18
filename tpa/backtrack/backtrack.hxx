@@ -9,7 +9,8 @@
 #include <variant>
 
 namespace bt {
-enum Flow { Backtrack, Next, Advance };
+enum class Flow { Backtrack, Next, Advance };
+using enum Flow;
 
 template <typename T>
 using Result = std::variant<std::reference_wrapper<T>, Flow>;

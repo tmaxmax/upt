@@ -13,23 +13,23 @@ class Sets {
         set.reserve(k);
     }
 
-    bt::Candidate<Value> next() {
+    bt::Result<Value> next() {
         if (set.back() == n) {
-            return {};
+            return bt::Backtrack;
         }
 
         set.back()++;
         for (std::size_t i = 0; i < set.size() - 1; i++) {
             if (set[i] == set.back() || (!ordered && set[i] > set.back())) {
-                return {.has_next = true};
+                return bt::Next;
             }
         }
 
         if (set.size() < k) {
-            return {.has_next = true, .is_partial = true};
+            return bt::Advance;
         }
 
-        return {.value = set, .has_next = true, .is_partial = true};
+        return set;
     }
 
     bool advance() {

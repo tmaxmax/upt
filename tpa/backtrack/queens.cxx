@@ -10,30 +10,30 @@ class Queens {
 
     Queens(int n) : n(n) { queens.reserve(n); }
 
-    bt::Candidate<Value> next() {
+    bt::Result<Value> next() {
         if (queens.back() == n) {
-            return {};
+            return bt::Backtrack;
         }
 
         queens.back()++;
         for (std::size_t i = 0; i < queens.size() - 1; i++) {
             if (queens[i] == queens.back()) {
-                return {.has_next = true};
+                return bt::Next;
             }
             const auto col_dist = queens.size() - i - 1;
             const auto row_dist = queens.back() < queens[i]
                                       ? queens[i] - queens.back()
                                       : queens.back() - queens[i];
             if (col_dist == row_dist) {
-                return {.has_next = true};
+                return bt::Next;
             }
         }
 
         if (queens.size() < n) {
-            return {.has_next = true, .is_partial = true};
+            return bt::Advance;
         }
 
-        return {.value = queens, .has_next = true, .is_partial = true};
+        return queens;
     }
 
     bool advance() {

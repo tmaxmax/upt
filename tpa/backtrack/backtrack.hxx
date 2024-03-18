@@ -2,26 +2,28 @@
 #define TPA_BACKTRACK_H
 
 #include <concepts>
+#include <functional>
 #include <iterator>
 #include <optional>
 #include <type_traits>
+#include <variant>
 
 namespace bt {
-template <typename T> struct Candidate {
-    std::optional<std::reference_wrapper<T>> value;
-    bool has_next, is_partial;
-};
+enum Flow { Backtrack, Next, Advance };
+
+template <typename T>
+using Result = std::variant<std::reference_wrapper<T>, Flow>;
 
 template <typename S>
-concept State =
-    std::movable<S> && requires(S s) {
-                           typename S::Value;
-                           {
-                               s.next()
-                               } -> std::same_as<Candidate<typename S::Value>>;
-                           { s.advance() } -> std::same_as<bool>;
-                           { s.backtrack() } -> std::same_as<bool>;
-                       };
+concept State = std::movable<S> &&
+                requires(S s) {
+                    typename S::Value;
+                    {
+                        s.next()
+                        } -> std::convertible_to<Result<typename S::Value>>;
+                    { s.advance() } -> std::same_as<bool>;
+                    { s.backtrack() } -> std::same_as<bool>;
+                };
 
 template <State S> class backtrack {
   private:
@@ -33,40 +35,6 @@ template <State S> class backtrack {
     class sentinel {};
 
     class iterator {
-      private:
-        std::optional<std::reference_wrapper<S>> state;
-        std::optional<std::reference_wrapper<typename S::Value>> last_value;
-
-        friend class backtrack;
-
-        void next() {
-            while (state) {
-                auto &s = state->get();
-                auto c = s.next();
-                for (; c.has_next && !c.is_partial; c = s.next())
-                    ;
-                if (c.has_next) {
-                    if (c.value) {
-                        last_value = c.value;
-                        break;
-                    } else if (s.advance()) {
-                        continue;
-                    }
-                }
-                if (!s.backtrack()) {
-                    state = std::nullopt;
-                }
-            }
-        }
-
-        iterator(S &s) : state(s) {
-            if (state->get().advance()) {
-                next();
-            } else {
-                state = std::nullopt;
-            }
-        }
-
       public:
         using iterator_category = std::input_iterator_tag;
         using value_type = typename S::Value;
@@ -94,6 +62,57 @@ template <State S> class backtrack {
 
         bool operator!=(const sentinel &other) const {
             return !(*this == other);
+        }
+
+      private:
+        std::optional<std::reference_wrapper<S>> state;
+        std::optional<std::reference_wrapper<value_type>> last_value;
+
+        friend class backtrack;
+
+        struct result_handler {
+            iterator &it;
+            bool was_value;
+
+            bool operator()(std::reference_wrapper<value_type> v) noexcept {
+                it.last_value = v;
+                was_value = true;
+                return false;
+            }
+            bool operator()(Flow f) noexcept {
+                switch (f) {
+                case Advance:
+                    if (it.state->get().advance()) {
+                        return false;
+                    }
+                case Backtrack:
+                    if (!it.state->get().backtrack()) {
+                        it.state = std::nullopt;
+                    }
+                    return false;
+                case Next:
+                    return true;
+                }
+            }
+        };
+
+        void next() {
+            while (state) {
+                result_handler handler{*this};
+                while (std::visit(handler, state->get().next()))
+                    ;
+                if (handler.was_value) {
+                    break;
+                }
+            }
+        }
+
+        iterator(S &s) : state(s) {
+            if (state->get().advance()) {
+                next();
+            } else {
+                state = std::nullopt;
+            }
         }
     };
 

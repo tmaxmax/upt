@@ -15,11 +15,4 @@ function c = bisect_zero (f, a, b, prec)
             a = c;
         end
     end
-
-    tol = 10 ^ prec;
-    tol_inv = 1 / tol;
-
-    if abs(round(f_c * tol) * tol_inv) > tol_inv
-        c = NaN;
-    end
 end

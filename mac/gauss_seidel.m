@@ -1,6 +1,5 @@
 function x = gauss_seidel(A, x0, b, prec)
     n = length(A);
-    D = diag(A);
 
     function x = step(xk)
         x = xk;
@@ -11,7 +10,7 @@ function x = gauss_seidel(A, x0, b, prec)
                     x(i) = x(i) - A(i, j) * x(j);
                 end
             end
-            x(i) = x(i) / D(i);
+            x(i) = x(i) / A(i, i);
         end
     end
 

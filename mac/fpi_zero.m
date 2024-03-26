@@ -11,7 +11,7 @@ function x = fpi_zero(f, x0, prec)
         xi = f(x);
         err = xi - x;
         x = xi;
-        if abs(err) < tol
+        if mean(abs(err)) < tol
             return
         end
     end

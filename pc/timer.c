@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
     }
 
     printf("How much is it? You have %d seconds!\nPress ENTER to start . . . ",
-           timeout_ms);
+           timeout_ms / 1000);
     fflush(stdout);
 
     char *input = NULL;

@@ -1,16 +1,24 @@
-function x = gauss_seidel(A, x0, b, prec)
+function x = gauss_seidel(A, x0, b, w, prec)
+    if ~exist('w', 'var') || isempty(w)
+        w = 1;
+    end
+    if ~exist('prec', 'var') || isempty(prec)
+        prec = 6;
+    end
+
     n = length(A);
 
     function x = step(xk)
         x = xk;
         for i = 1:n
-            x(i) = b(i); 
+            coef = b(i); 
             for j = 1:n
                 if i != j
-                    x(i) = x(i) - A(i, j) * x(j);
+                    coef = coef - A(i, j) * x(j);
                 end
             end
-            x(i) = x(i) / A(i, i);
+            coef = coef / A(i, i);
+            x(i) = (1 - w) * x(i) + w * coef;
         end
     end
 

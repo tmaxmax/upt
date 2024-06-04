@@ -94,15 +94,20 @@ class Backpack {
     std::span<const Object> objects;
 };
 
-extern "C" int solve_backpack(const int *weights, const int *profits,
-                              const int n, const int max_weight) {
+extern "C" {
+int solve_backpack(const int *weights, const int *profits, int n,
+                   int max_weight) {
+    std::vector<Object> obj_vec;
+    obj_vec.reserve(n);
+
     auto objs = vw::iota(0, n) | vw::transform([&](auto i) -> Object {
                     return {profits[i], weights[i]};
                 });
-    std::vector<Object> obj_vec{objs.begin(), objs.end()};
+    obj_vec.insert(obj_vec.end(), objs.begin(), objs.end());
 
     bt::backtrack backpack(Backpack(obj_vec, max_weight));
 
     return std::accumulate(backpack.begin(), backpack.end(), 0,
                            [](auto a, auto b) { return std::max(a, b); });
+}
 }

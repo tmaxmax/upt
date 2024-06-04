@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "LLDB: Debug active file",
             "program": "${fileDirname}/${fileBasenameNoExtension}.out",
-            "stdio": ["${fileDirname}/${fileBasenameNoExtension}.in", null, null],
+            "stdio": [/*"${fileDirname}/${fileBasenameNoExtension}.in"*/null, null, null],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C: clang build active file"
         }

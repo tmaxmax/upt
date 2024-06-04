@@ -8,8 +8,8 @@
                 "@${workspaceRoot}/compile_flags.txt",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}.out",
-                "${file}",
-                "./c/**/*.o"           
+                "${file}"
+                // "./c/**/*.o"           
             ],
             "options": {
                 "cwd": "${workspaceFolder}"   

@@ -14,15 +14,15 @@ using enum Flow;
 template <typename T> using Result = std::variant<T, Flow>;
 
 template <typename S>
-concept State = std::movable<S> &&
-                requires(S s) {
-                    typename S::Value;
-                    {
-                        s.next()
-                        } -> std::convertible_to<Result<typename S::Value>>;
-                    { s.advance() } -> std::same_as<bool>;
-                    { s.backtrack() } -> std::same_as<bool>;
-                };
+concept State =
+    std::movable<S> && requires(S s) {
+                           typename S::Value;
+                           {
+                               s.next()
+                               } -> std::same_as<Result<typename S::Value>>;
+                           { s.advance() } -> std::same_as<bool>;
+                           { s.backtrack() } -> std::same_as<bool>;
+                       };
 
 template <State S> class backtrack {
   private:
@@ -31,12 +31,10 @@ template <State S> class backtrack {
   public:
     backtrack(S s) : state(std::move(s)) {}
 
-    class sentinel {};
-
     class iterator {
       public:
         using iterator_category = std::input_iterator_tag;
-        using value_type = typename S::Value;
+        using value_type = const typename S::Value;
         using reference = value_type &;
         using pointer = value_type *;
         using difference_type = std::ptrdiff_t;
@@ -55,12 +53,20 @@ template <State S> class backtrack {
             return copy;
         }
 
-        bool operator==(const sentinel &other) const {
-            return !state.has_value();
+        bool operator==(const iterator &other) const {
+            return !(*this != other);
         }
 
-        bool operator!=(const sentinel &other) const {
-            return !(*this == other);
+        bool operator!=(const iterator &other) const {
+            return state.has_value() != other.state.has_value();
+        }
+
+        iterator(iterator &&i)
+            : state{i.state}, last_value{std::move(i.last_value)} {}
+        iterator &operator=(iterator &&i) noexcept {
+            state = i.state;
+            last_value = std::move(i.last_value);
+            return *this;
         }
 
       private:
@@ -74,7 +80,7 @@ template <State S> class backtrack {
             bool was_value;
 
             bool operator()(value_type v) noexcept {
-                it.last_value = v;
+                it.last_value.emplace(v);
                 was_value = true;
                 return false;
             }
@@ -106,6 +112,8 @@ template <State S> class backtrack {
             }
         }
 
+        iterator() : state() {}
+
         iterator(S &s) : state(s) {
             if (state->get().advance()) {
                 next();
@@ -116,11 +124,10 @@ template <State S> class backtrack {
     };
 
     static_assert(std::input_iterator<iterator>);
-    static_assert(std::sentinel_for<sentinel, iterator>);
 
     iterator begin() { return iterator{state}; }
 
-    sentinel end() { return sentinel{}; }
+    iterator end() { return iterator{}; }
 };
 
 } // namespace bt

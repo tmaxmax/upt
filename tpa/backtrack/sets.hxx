@@ -1,13 +1,14 @@
 #ifndef TPA_BACKTRACK_SETS_HXX
 #define TPA_BACKTRACK_SETS_HXX
 
+#include <span>
 #include <vector>
 
 #include "backtrack.hxx"
 
 class Sets {
   public:
-    using Value = std::vector<int>;
+    using Value = std::span<const int>;
 
     Sets(int n, int k, bool ordered) : n(n), k(k), ordered(ordered), set() {
         set.reserve(k);
@@ -50,7 +51,7 @@ class Sets {
   private:
     int n, k;
     bool ordered;
-    Value set;
+    std::vector<int> set;
 };
 
 #endif

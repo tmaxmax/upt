@@ -1,12 +1,13 @@
 #include <algorithm>
 #include <iostream>
+#include <span>
 #include <vector>
 
 #include "backtrack.hxx"
 
 class Queens {
   public:
-    using Value = std::vector<int>;
+    using Value = std::span<const int>;
 
     Queens(int n) : n(n) { queens.reserve(n); }
 

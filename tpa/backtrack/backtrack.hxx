@@ -2,7 +2,6 @@
 #define TPA_BACKTRACK_H
 
 #include <concepts>
-#include <functional>
 #include <iterator>
 #include <optional>
 #include <type_traits>
@@ -12,8 +11,7 @@ namespace bt {
 enum class Flow { Backtrack, Next, Advance };
 using enum Flow;
 
-template <typename T>
-using Result = std::variant<std::reference_wrapper<T>, Flow>;
+template <typename T> using Result = std::variant<T, Flow>;
 
 template <typename S>
 concept State = std::movable<S> &&
@@ -43,8 +41,8 @@ template <State S> class backtrack {
         using pointer = value_type *;
         using difference_type = std::ptrdiff_t;
 
-        reference operator*() const { return last_value->get(); }
-        pointer operator->() const { return &last_value->get(); }
+        reference operator*() const { return last_value.value(); }
+        pointer operator->() const { return &last_value.value(); }
 
         iterator &operator++() {
             next();
@@ -67,7 +65,7 @@ template <State S> class backtrack {
 
       private:
         std::optional<std::reference_wrapper<S>> state;
-        std::optional<std::reference_wrapper<value_type>> last_value;
+        std::optional<value_type> last_value;
 
         friend class backtrack;
 
@@ -75,7 +73,7 @@ template <State S> class backtrack {
             iterator &it;
             bool was_value;
 
-            bool operator()(std::reference_wrapper<value_type> v) noexcept {
+            bool operator()(value_type v) noexcept {
                 it.last_value = v;
                 was_value = true;
                 return false;

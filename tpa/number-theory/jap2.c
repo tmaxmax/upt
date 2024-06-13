@@ -1,8 +1,9 @@
+#include <inttypes.h>
 #include <stdio.h>
 
-long phi(long n) {
-    long r = n;
-    for (long i = 2; i * i <= n; i++) {
+uint64_t phi(uint64_t n) {
+    uint64_t r = n;
+    for (uint64_t i = 2; i * i <= n; i++) {
         if (n % i == 0) {
             while (n % i == 0)
                 n /= i;
@@ -14,8 +15,8 @@ long phi(long n) {
     return r;
 }
 
-long powm(long a, long n, long mod) {
-    long r = 1, s = a;
+uint64_t powm(uint64_t a, uint64_t n, uint64_t mod) {
+    uint64_t r = 1, s = a;
 
     while (n > 0) {
         if (n % 2 == 1) {
@@ -28,46 +29,49 @@ long powm(long a, long n, long mod) {
     return r;
 }
 
-long modinv(long a, long n) { return powm(a, phi(n) - 1, n); }
+uint64_t modinv(uint64_t a, uint64_t p) { return powm(a, phi(p) - 1, p); }
 
-long modbinom(long a, long b, long p) {
-    for (long n = a, m = b; m > 0; n /= p, m /= p) {
-        if (n % p < m % p) {
+uint64_t modbinom(uint64_t n, uint64_t m, uint64_t p) {
+    for (uint64_t tn = n, tm = m; tm > 0; tn /= p, tm /= p) {
+        if (tn % p < tm % p) {
             return 0;
         }
     }
 
-    long r = 1;
-    for (; a >= p || b >= p; a /= p, b /= p) {
-        r = (r + modbinom(a % p, b % p, p)) % p;
+    uint64_t r = 1;
+    for (; n >= p || m >= p; n /= p, m /= p) {
+        r *= modbinom(n % p, m % p, p);
+        r %= p;
     }
 
-    if (b > a - b) {
-        b = a - b;
+    if (m > n - m) {
+        m = n - m;
     }
 
-    long d = 1;
-    for (long i = 0; i < b; i++) {
-        r = (r * (a - i)) % p;
-        d = (d * (i + 1)) % p;
+    uint64_t d = 1;
+    for (uint64_t i = 0; i < m; i++) {
+        r = r * (n - i) % p;
+        d = d * (i + 1) % p;
     }
 
-    return (r * modinv(d, p)) % p;
+    return r * modinv(d, p) % p;
 }
 
 int main(void) {
+    // Infoarena 70/100
+
     freopen("jap2.in", "r", stdin);
     freopen("jap2.out", "w", stdout);
 
     int q;
-    long p;
+    uint64_t p;
 
-    scanf("%ld %d", &p, &q);
+    scanf("%" SCNu64 " %d", &p, &q);
 
     for (int i = 0; i < q; i++) {
-        long a, b;
-        scanf("%ld %ld", &a, &b);
-        printf("%ld\n", modbinom(a, b, p));
+        uint64_t a, b;
+        scanf("%" SCNu64 " %" SCNu64, &a, &b);
+        printf("%" SCNu64 "\n", modbinom(a, b, p));
     }
 
     return 0;

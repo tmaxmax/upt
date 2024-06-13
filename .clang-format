@@ -1,3 +1,6 @@
 BasedOnStyle: LLVM
+AlignAfterOpenBracket: DontAlign
 BreakBeforeBraces: Attach
 IndentWidth: 4
+DerivePointerAlignment: true 
+PointerAlignment: Left
